@@ -24,6 +24,8 @@
  *
  * Authors: Elena Buchatskaia <borovkovaes@iitp.ru>
  *          Pavel Boyko <boyko@iitp.ru>
+ *
+ * Update: Modified to also support black-hole / grey-hole attacks.
  */
 #ifndef AODVROUTINGPROTOCOL_H
 #define AODVROUTINGPROTOCOL_H
@@ -167,6 +169,27 @@ public:
     return m_enableBroadcast;
   }
 
+  void SetBlackholeAttackEnable (bool f)
+  {
+    if (f == true)
+    {
+      std::cout << "Enabling black hole attack for node with id:" << m_ipv4->GetObject<Node> ()->GetId () << std::endl;
+    }
+    m_enableBlackholeAttack = f;
+  }
+
+  bool GetBlackholeAttackEnable () const
+  {
+    return m_enableBlackholeAttack;
+  }
+
+  void SetBlackholeAttackPacketDropPercentage (u_int32_t packetDropPercentage);
+
+  u_int32_t GetBlackholeAttackPacketDropPercentage () const
+  {
+    return m_blackholeAttackPacketDropPercentage;
+  }
+
   /**
    * Assign a fixed random variable stream number to the random variables
    * used by this model.  Return the number of streams (possibly zero) that
@@ -217,6 +240,12 @@ private:
   bool m_gratuitousReply;              ///< Indicates whether a gratuitous RREP should be unicast to the node originated route discovery.
   bool m_enableHello;                  ///< Indicates whether a hello messages enable
   bool m_enableBroadcast;              ///< Indicates whether a a broadcast data packets forwarding enable
+
+  // Enable black hole attack behavior.
+  bool m_enableBlackholeAttack;
+
+  // Integer in 1-100 to control packet drop when black hole attack is enabled.
+  uint32_t m_blackholeAttackPacketDropPercentage;
   //\}
 
   /// IP protocol
@@ -348,6 +377,10 @@ private:
   void SendRequest (Ipv4Address dst);
   /// Send RREP
   void SendReply (RreqHeader const & rreqHeader, RoutingTableEntry const & toOrigin);
+
+  /// Send Malicious RREP
+  void SendMaliciousReply (RreqHeader const & rreqHeader, RoutingTableEntry const & toOrigin);
+
   /** Send RREP by intermediate node
    * \param toDst routing table entry to destination
    * \param toOrigin routing table entry to originator

@@ -24,6 +24,8 @@
  *
  * Authors: Elena Buchatskaia <borovkovaes@iitp.ru>
  *          Pavel Boyko <boyko@iitp.ru>
+ *
+ * Update: Modified to also support black-hole / grey-hole attacks.
  */
 #define NS_LOG_APPEND_CONTEXT                                   \
   if (m_ipv4) { std::clog << "[node " << m_ipv4->GetObject<Node> ()->GetId () << "] "; }
@@ -161,6 +163,9 @@ RoutingProtocol::RoutingProtocol ()
     m_destinationOnly (false),
     m_gratuitousReply (true),
     m_enableHello (false),
+    // Black hole attack behavior related
+    m_enableBlackholeAttack (false),
+    m_blackholeAttackPacketDropPercentage (100),
     m_routingTable (m_deletePeriod),
     m_queue (m_maxQueueLen, m_maxQueueTime),
     m_requestId (0),
@@ -290,6 +295,16 @@ RoutingProtocol::GetTypeId (void)
                    MakeBooleanAccessor (&RoutingProtocol::SetBroadcastEnable,
                                         &RoutingProtocol::GetBroadcastEnable),
                    MakeBooleanChecker ())
+    .AddAttribute ("EnableBlackholeAttack", "Indicates whether to enable blackhole packet drop behaviour.",
+                   BooleanValue (false),
+                   MakeBooleanAccessor (&RoutingProtocol::SetBlackholeAttackEnable,
+                                        &RoutingProtocol::GetBlackholeAttackEnable),
+                   MakeBooleanChecker())
+    .AddAttribute ("BlackholeAttackPacketDropPercentage", "Integer in 1-100 representing packet drop percentage.",
+                   UintegerValue (100),
+                   MakeUintegerAccessor (&RoutingProtocol::SetBlackholeAttackPacketDropPercentage,
+                                         &RoutingProtocol::GetBlackholeAttackPacketDropPercentage),
+                   MakeUintegerChecker<u_int32_t>())
     .AddAttribute ("UniformRv",
                    "Access to the underlying UniformRandomVariable",
                    StringValue ("ns3::UniformRandomVariable"),
@@ -310,6 +325,11 @@ RoutingProtocol::SetMaxQueueTime (Time t)
 {
   m_maxQueueTime = t;
   m_queue.SetQueueTimeout (t);
+}
+void
+RoutingProtocol::SetBlackholeAttackPacketDropPercentage (uint32_t packetDropPercentage)
+{
+  m_blackholeAttackPacketDropPercentage = packetDropPercentage;
 }
 
 RoutingProtocol::~RoutingProtocol ()
@@ -592,10 +612,17 @@ RoutingProtocol::Forwarding (Ptr<const Packet> p, const Ipv4Header & header,
                              UnicastForwardCallback ucb, ErrorCallback ecb)
 {
   NS_LOG_FUNCTION (this);
+  m_routingTable.Purge ();
+
+  // Check if we need to drop packet
+  if (m_enableBlackholeAttack && m_uniformRandomVariable->GetInteger (0, 100) < m_blackholeAttackPacketDropPercentage) {
+    NS_LOG_LOGIC("Malicious node - Dropping packet " << p->GetUid ());
+  }
+
   Ipv4Address dst = header.GetDestination ();
   Ipv4Address origin = header.GetSource ();
-  m_routingTable.Purge ();
   RoutingTableEntry toDst;
+
   if (m_routingTable.LookupRoute (dst, toDst))
     {
       if (toDst.GetFlag () == VALID)
@@ -1066,7 +1093,7 @@ RoutingProtocol::SendRequest (Ipv4Address dst)
         {
           destination = iface.GetBroadcast ();
         }
-      NS_LOG_DEBUG ("Send RREQ with id " << rreqHeader.GetId () << " to socket");
+      NS_LOG_DEBUG ("Send RREQ with id " << rreqHeader.GetId () << " to socket - Destination - " << dst << " / TTL " << ttl << " at simulation time = " << Simulator::Now());
       m_lastBcastTime = Simulator::Now ();
       Simulator::Schedule (Time (MilliSeconds (m_uniformRandomVariable->GetInteger (0, 10))), &RoutingProtocol::SendTo, this, socket, packet, destination);
     }
@@ -1332,6 +1359,15 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
       SendReply (rreqHeader, toOrigin);
       return;
     }
+
+  if (m_enableBlackholeAttack)
+  {
+    m_routingTable.LookupRoute (origin, toOrigin);
+
+    std::cout << "Node is malicious: " << m_ipv4->GetObject<Node> ()-> GetId () << std::endl;
+    SendMaliciousReply (rreqHeader, toOrigin);
+    return;
+  }
   /*
    * (ii) or it has an active route to the destination, the destination sequence number in the node's existing route table entry for the destination
    *      is valid and greater than or equal to the Destination Sequence Number of the RREQ, and the "destination only" flag is NOT set.
@@ -1367,6 +1403,11 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
           rreqHeader.SetUnknownSeqno (false);
         }
     }
+
+  if (m_enableBlackholeAttack) {
+    std::cout << "Malicious node - Do not broadcast RREQ" << std::endl;
+    return;
+  }
 
   SocketIpTtlTag tag;
   p->RemovePacketTag (tag);
@@ -1427,6 +1468,36 @@ RoutingProtocol::SendReply (RreqHeader const & rreqHeader, RoutingTableEntry con
   packet->AddHeader (tHeader);
   Ptr<Socket> socket = FindSocketWithInterfaceAddress (toOrigin.GetInterface ());
   NS_ASSERT (socket);
+  socket->SendTo (packet, 0, InetSocketAddress (toOrigin.GetNextHop (), AODV_PORT));
+}
+
+void
+RoutingProtocol::SendMaliciousReply (RreqHeader const & rreqHeader, RoutingTableEntry const & toOrigin)
+{
+  NS_LOG_FUNCTION (this << toOrigin.GetDestination ());
+
+  Ptr<Socket> socket = FindSocketWithInterfaceAddress (toOrigin.GetInterface ());
+  NS_ASSERT (socket);
+
+  // Set high value for sequence number. Also sequence number is increasing with simulator time.
+  RrepHeader rrepHeader (
+    /*prefixSize=*/ 0,
+    /*hops=*/ 0,
+    /*dst=*/ rreqHeader.GetDst (),
+    /*dstSeqNo=*/ (uint32_t) Simulator::Now ().GetMicroSeconds (),
+    /*origin=*/ toOrigin.GetDestination (),
+    /*lifeTime=*/ m_myRouteTimeout);
+
+  std::cout << "Malicious Reply: with seq number " << rrepHeader.GetDstSeqno() << " to " << rrepHeader.GetOrigin () << std::endl;
+
+  Ptr<Packet> packet = Create<Packet>();
+  SocketIpTtlTag tag;
+  tag.SetTtl (toOrigin.GetHop ());
+  packet->AddPacketTag (tag);
+  packet->AddHeader (rrepHeader);
+  TypeHeader tHeader (AODVTYPE_RREP);
+  packet->AddHeader (tHeader);
+
   socket->SendTo (packet, 0, InetSocketAddress (toOrigin.GetNextHop (), AODV_PORT));
 }
 
