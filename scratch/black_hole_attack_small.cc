@@ -17,11 +17,16 @@ using namespace ns3;
  * \ingroup examples
  * \brief Test script.
  * 
- * This script creates 1-dimensional grid topology and then ping last node from the first one:
+ * This script creates 2-dimensional grid topology and then ping last node in row 1 from the first one:
  * 
- * [10.0.0.1] <-- step --> [10.0.0.2] <-- step --> [10.0.0.3] <-- step --> [10.0.0.4]
+ * [10.0.0.1] <-- step --> [10.0.0.2] <-- step --> [10.0.0.3] <-- step --> [10.0.0.4] <-- step --> [10.0.0.5]
+ *
+ *                                     [10.0.0.6] <-- step --> [10.0.0.7]
+ *
+ * ping 10.0.0.5 from 10.0.0.1
  * 
- * ping 10.0.0.4
+ * 10.0.0.3 is set as blackhole for 0-40secs of simulation
+ * Total Simulation time = 100sec
  */
 class BlackholeAttackSmallExample 
 {
@@ -315,7 +320,7 @@ BlackholeAttackSmallExample::InstallApplications ()
 
   Simulator::Schedule (Seconds (40), &aodv::RoutingProtocol::SetBlackholeAttackEnable, routingProtocol, false);
 
-  // move node away
+  // move node away - disabled for now
   // Ptr<MobilityModel> mob = node->GetObject<MobilityModel> ();
   //Simulator::Schedule (Seconds (totalTime/3), &MobilityModel::SetPosition, mob, Vector (1e5, 1e5, 1e5));
 }
