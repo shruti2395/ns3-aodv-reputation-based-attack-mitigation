@@ -53,7 +53,14 @@ RoutingTableEntry::RoutingTableEntry (Ptr<NetDevice> dev, Ipv4Address dst, bool 
     m_flag (VALID),
     m_reqCount (0),
     m_blackListState (false),
-    m_blackListTimeout (Simulator::Now ())
+    m_blackListTimeout (Simulator::Now ()),
+    m_positiveEventCount (0),
+    m_negativeEventCount (0),
+    m_trustState (UNCERTAIN),
+    m_beliefValue (0),
+    m_disbeliefValue (0),
+    m_uncertaintyValue (1)
+
 {
   m_ipv4Route = Create<Ipv4Route> ();
   m_ipv4Route->SetDestination (dst);
@@ -198,7 +205,29 @@ RoutingTableEntry::Print (Ptr<OutputStreamWrapper> stream) const
   *os << std::setiosflags (std::ios::fixed) <<
   std::setiosflags (std::ios::left) << std::setprecision (2) <<
   std::setw (14) << (m_lifeTime - Simulator::Now ()).GetSeconds ();
-  *os << "\t" << m_hops << "\n";
+  *os << "\t" << m_hops;
+  *os << "\t" << m_positiveEventCount <<"\t" <<  m_negativeEventCount << "\t";
+
+  switch (m_trustState)
+  {
+    case UNCERTAIN:
+      {
+        *os << "UNCERTAIN";
+        break;
+      }
+    case TRUSTED:
+      {
+        *os << "TRUSTED";
+        break;
+      }
+    case UNTRUSTED:
+      {
+        *os << "UNTRUSTED";
+        break;
+      }
+  }
+
+  *os << "\t(" << std::setprecision (3) << m_beliefValue << "," << m_disbeliefValue << "," << m_uncertaintyValue << ")\n";
 }
 
 /*
@@ -469,7 +498,8 @@ RoutingTable::Print (Ptr<OutputStreamWrapper> stream) const
   std::map<Ipv4Address, RoutingTableEntry> table = m_ipv4AddressEntry;
   Purge (table);
   *stream->GetStream () << "\nAODV Routing table\n"
-                        << "Destination\tGateway\t\tInterface\tFlag\tExpire\t\tHops\n";
+                        << "Destination\tGateway\t\tInterface\tFlag\tExpire\t\tHops\t"
+                        << "Pos\tNeg\tTrust State\tTrust Value\n";
   for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator i =
          table.begin (); i != table.end (); ++i)
     {

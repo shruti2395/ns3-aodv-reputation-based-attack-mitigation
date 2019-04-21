@@ -282,7 +282,7 @@ BlackholeAttackSmallExample::InstallInternetStack ()
 
   if (printRoutes)
     {
-      Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> ("aodv.routes", std::ios::out);
+      Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> ("blackhole_attach_small_aodv.routes", std::ios::out);
       aodv.PrintRoutingTableAllAt (Seconds (10), routingStream);
       aodv.PrintRoutingTableAllAt (Seconds (50), routingStream);
       aodv.PrintRoutingTableAllAt (Seconds (80), routingStream);

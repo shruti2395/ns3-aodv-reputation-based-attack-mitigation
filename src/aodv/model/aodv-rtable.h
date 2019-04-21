@@ -52,6 +52,13 @@ enum RouteFlags
   IN_SEARCH = 2,      //!< IN_SEARCH
 };
 
+enum TrustState
+{
+  UNCERTAIN = 0,
+  TRUSTED = 1,
+  UNTRUSTED = 2,
+};
+
 /**
  * \ingroup aodv
  * \brief Routing table entry
@@ -71,7 +78,7 @@ public:
    * \param nextHop the IP address of the next hop
    * \param lifetime the lifetime of the entry
    */
-  RoutingTableEntry (Ptr<NetDevice> dev = 0,Ipv4Address dst = Ipv4Address (), bool vSeqNo = false, uint32_t seqNo = 0,
+  RoutingTableEntry (Ptr<NetDevice> dev = 0, Ipv4Address dst = Ipv4Address (), bool vSeqNo = false, uint32_t seqNo = 0,
                      Ipv4InterfaceAddress iface = Ipv4InterfaceAddress (), uint16_t  hops = 0,
                      Ipv4Address nextHop = Ipv4Address (), Time lifetime = Simulator::Now ());
 
@@ -343,6 +350,11 @@ public:
    */
   void Print (Ptr<OutputStreamWrapper> stream) const;
 
+  TrustState GetTrustState () const
+  {
+    return m_trustState;
+  }
+
 private:
   /// Valid Destination Sequence Number flag
   bool m_validSeqNo;
@@ -379,6 +391,18 @@ private:
   bool m_blackListState;
   /// Time for which the node is put into the blacklist
   Time m_blackListTimeout;
+
+  /// Trust Modeling related fields.
+
+  uint16_t m_positiveEventCount;
+
+  uint16_t m_negativeEventCount;
+
+  TrustState m_trustState;
+
+  float_t m_beliefValue;
+  float_t m_disbeliefValue;
+  float_t m_uncertaintyValue;
 };
 
 /**
