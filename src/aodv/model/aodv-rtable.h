@@ -80,7 +80,8 @@ public:
    */
   RoutingTableEntry (Ptr<NetDevice> dev = 0, Ipv4Address dst = Ipv4Address (), bool vSeqNo = false, uint32_t seqNo = 0,
                      Ipv4InterfaceAddress iface = Ipv4InterfaceAddress (), uint16_t  hops = 0,
-                     Ipv4Address nextHop = Ipv4Address (), Time lifetime = Simulator::Now ());
+                     Ipv4Address nextHop = Ipv4Address (), Time lifetime = Simulator::Now (),
+                     uint16_t trustPositiveEventCnt = 0, uint16_t trustNegativeEventCnt = 0);
 
   ~RoutingTableEntry ();
 
@@ -350,6 +351,28 @@ public:
    */
   void Print (Ptr<OutputStreamWrapper> stream) const;
 
+  uint16_t GetTrustPositiveEventCount() const
+  {
+    return m_positiveEventCount;
+  }
+
+  uint16_t GetTrustNegativeEventCount() const
+  {
+    return m_negativeEventCount;
+  }
+
+  void IncrementPositiveEventCount()
+  {
+    ResetTrustEventCount(m_positiveEventCount + 1, m_negativeEventCount);
+  }
+
+  void IncrementNegativeEventCount()
+  {
+    ResetTrustEventCount(m_positiveEventCount, m_negativeEventCount + 1);
+  }
+
+  void ResetTrustEventCount (uint16_t positiveCount, uint16_t negativeCount);
+
   TrustState GetTrustState () const
   {
     return m_trustState;
@@ -403,6 +426,7 @@ private:
   float_t m_beliefValue;
   float_t m_disbeliefValue;
   float_t m_uncertaintyValue;
+
 };
 
 /**

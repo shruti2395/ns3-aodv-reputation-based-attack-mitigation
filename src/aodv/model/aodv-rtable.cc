@@ -43,7 +43,8 @@ namespace aodv {
  */
 
 RoutingTableEntry::RoutingTableEntry (Ptr<NetDevice> dev, Ipv4Address dst, bool vSeqNo, uint32_t seqNo,
-                                      Ipv4InterfaceAddress iface, uint16_t hops, Ipv4Address nextHop, Time lifetime)
+                                      Ipv4InterfaceAddress iface, uint16_t hops, Ipv4Address nextHop, Time lifetime,
+                                      uint16_t trustPositiveEventCnt, uint16_t trustNegativeEventCnt)
   : m_ackTimer (Timer::CANCEL_ON_DESTROY),
     m_validSeqNo (vSeqNo),
     m_seqNo (seqNo),
@@ -54,8 +55,6 @@ RoutingTableEntry::RoutingTableEntry (Ptr<NetDevice> dev, Ipv4Address dst, bool 
     m_reqCount (0),
     m_blackListState (false),
     m_blackListTimeout (Simulator::Now ()),
-    m_positiveEventCount (0),
-    m_negativeEventCount (0),
     m_trustState (UNCERTAIN),
     m_beliefValue (0),
     m_disbeliefValue (0),
@@ -67,6 +66,8 @@ RoutingTableEntry::RoutingTableEntry (Ptr<NetDevice> dev, Ipv4Address dst, bool 
   m_ipv4Route->SetGateway (nextHop);
   m_ipv4Route->SetSource (m_iface.GetLocal ());
   m_ipv4Route->SetOutputDevice (dev);
+
+  ResetTrustEventCount(trustPositiveEventCnt, trustNegativeEventCnt);
 }
 
 RoutingTableEntry::~RoutingTableEntry ()
@@ -175,6 +176,26 @@ RoutingTableEntry::Invalidate (Time badLinkLifetime)
   m_flag = INVALID;
   m_reqCount = 0;
   m_lifeTime = badLinkLifetime + Simulator::Now ();
+}
+
+void
+RoutingTableEntry::ResetTrustEventCount (u_int16_t positiveCount, u_int16_t negativeCount)
+{
+  m_positiveEventCount = positiveCount;
+  m_negativeEventCount = negativeCount;
+
+  float_t denominator = positiveCount + negativeCount + 2.0f;
+  m_beliefValue = positiveCount / denominator;
+  m_disbeliefValue = negativeCount / denominator;
+  m_uncertaintyValue = 2.0f / denominator;
+
+  if (m_beliefValue >= 0.5) {
+    m_trustState = TRUSTED;
+  } else if (m_disbeliefValue >= 0.5) {
+    m_trustState = UNTRUSTED;
+  } else {
+    m_trustState = UNCERTAIN;
+  }
 }
 
 void
@@ -310,14 +331,19 @@ RoutingTable::Update (RoutingTableEntry & rt)
     m_ipv4AddressEntry.find (rt.GetDestination ());
   if (i == m_ipv4AddressEntry.end ())
     {
-      NS_LOG_LOGIC ("Route update to " << rt.GetDestination () << " fails; not found");
+      NS_LOG_WARN ("Route update to " << rt.GetDestination () << " fails; not found");
       return false;
     }
+
+  uint16_t newPositiveEventCount = i->second.GetTrustPositiveEventCount () + rt.GetTrustPositiveEventCount ();
+  uint16_t newNegativeEventCount = i->second.GetTrustNegativeEventCount () + rt.GetTrustNegativeEventCount ();
+
   i->second = rt;
   if (i->second.GetFlag () != IN_SEARCH)
     {
-      NS_LOG_LOGIC ("Route update to " << rt.GetDestination () << " set RreqCnt to 0");
+      NS_LOG_WARN ("Route update to " << rt.GetDestination () << " set RreqCnt to 0");
       i->second.SetRreqCnt (0);
+      i->second.ResetTrustEventCount(newPositiveEventCount, newNegativeEventCount);
     }
   return true;
 }
