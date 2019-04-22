@@ -160,6 +160,14 @@ BlackholeAttackSmallExample::Run ()
   anim.EnableIpv4RouteTracking("blackhole-small-routing-table.xml", Seconds (0), Seconds (totalTime), Seconds (5));
   anim.SetBackgroundImage("/home/shruti/Desktop/project-ns3-aodv/hos.png", 0, 0, 1.0, 1.0, 0.75);
 
+  for (uint32_t i = 0; i < size; i++)
+  {
+    anim.UpdateNodeColor(i, 0, 0, 255);
+  }
+
+  // Blackhole node
+  anim.UpdateNodeColor(2, 255, 0, 0);
+
   Ptr<FlowMonitor> flowmon;
   FlowMonitorHelper flowmonHelper;
   flowmon = flowmonHelper.InstallAll ();
