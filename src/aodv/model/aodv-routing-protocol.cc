@@ -41,6 +41,7 @@
 #include "ns3/udp-header.h"
 #include "ns3/wifi-net-device.h"
 #include "ns3/adhoc-wifi-mac.h"
+#include "ns3/loopback-net-device.h"
 #include "ns3/string.h"
 #include "ns3/pointer.h"
 #include <algorithm>
@@ -352,6 +353,20 @@ RoutingProtocol::DoDispose ()
       iter->first->Close ();
     }
   m_socketSubnetBroadcastAddresses.clear ();
+
+  // Remove the promiscuous mode call back.
+  Ptr<Node> node = GetObject<Node> ();
+  for (uint32_t index=0; index < node->GetNDevices (); index++)
+  {
+    Ptr<NetDevice> device = node->GetDevice (index);
+    if (!DynamicCast<LoopbackNetDevice> (device))
+    {
+      device->SetPromiscReceiveCallback (MakeNullCallback <bool, Ptr<NetDevice>, Ptr<const Packet>,
+                                                           uint16_t, const Address &, const Address &,
+                                                           NetDevice::PacketType>());
+    }
+  }
+
   Ipv4RoutingProtocol::DoDispose ();
 }
 
@@ -517,7 +532,6 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header,
         {
           if (dst == iface.GetBroadcast () || dst.IsBroadcast ())
             {
-              NS_LOG_WARN ("Received broadcase packet from " << origin);
               if (m_dpd.IsDuplicate (p, header))
                 {
                   NS_LOG_DEBUG ("Duplicated packet " << p->GetUid () << " from " << origin << ". Drop.");
@@ -546,23 +560,6 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header,
                   p->PeekHeader (udpHeader);
                   if (udpHeader.GetDestinationPort () == AODV_PORT)
                     {
-                      TypeHeader tHeader;
-                      p->PeekHeader (tHeader);
-                      Ptr<Node> node = m_ipv4->GetObject <Node> ();
-                      if (node-> GetId () == 1)
-                      {
-                        switch (tHeader.Get ())
-                        {
-                          case AODVTYPE_RREQ:
-                            NS_LOG_WARN ("Packet on AODV port of type RREQ from " << origin << " to " << dst);
-                            break;
-                          case AODVTYPE_RREP:
-                            NS_LOG_DEBUG ("Packet on AODV port of type RREP from " << origin << " to " << dst);
-                            break;
-                          default:
-                            break;
-                        }
-                      }
                       // AODV packets sent in broadcast are already managed
                       return true;
                     }
@@ -634,7 +631,7 @@ RoutingProtocol::Forwarding (Ptr<const Packet> p, const Ipv4Header & header,
 
   // Check if we need to drop packet
   if (m_blackholeAttackPacketDropPercentage >= 1 && m_uniformRandomVariable->GetInteger (1, 100) <= m_blackholeAttackPacketDropPercentage) {
-    NS_LOG_WARN("Malicious node - Dropping packet " << p->GetUid ());
+    NS_LOG_WARN("Blackhole node - Dropping packet " << p->GetUid ());
     return true;
   }
 
@@ -768,7 +765,6 @@ RoutingProtocol::NotifyInterfaceUp (uint32_t i)
       return;
     }
 
-  wifi->SetPromiscReceiveCallback (MakeCallback (&RoutingProtocol::RecvPromiscuousMode, this));
   Ptr<WifiMac> mac = wifi->GetMac ();
   if (mac == 0)
     {
@@ -795,8 +791,6 @@ RoutingProtocol::NotifyInterfaceDown (uint32_t i)
                                               m_nb.GetTxErrorCallback ());
           m_nb.DelArpCache (l3->GetInterface (i)->GetArpCache ());
         }
-
-      wifi->SetPromiscReceiveCallback(MakeNullCallback<bool, Ptr<NetDevice>, Ptr<const Packet>, uint16_t, const Address &, const Address &, NetDevice::PacketType> ());
     }
 
   // Close socket
@@ -1220,25 +1214,55 @@ RoutingProtocol::RecvAodv (Ptr<Socket> socket)
     }
 }
 
-void
-RoutingProtocol::RecvRawSocket(Ptr<Socket> socket)
-{
-  std::cout << "Called Raw Socket" << std::endl;
-}
-
 bool
 RoutingProtocol::RecvPromiscuousMode (Ptr<NetDevice> device, Ptr<const Packet> packet,
                                       uint16_t protocol, const Address &from,
                                       const Address &to, NetDevice::PacketType packetType)
 {
+  if (protocol != Ipv4L3Protocol::PROT_NUMBER)
+  {
+    return false;
+  }
+
+  Ptr<Packet> copyPacket = packet->Copy ();
+
+  Ipv4Header ipv4Header;
+  copyPacket->RemoveHeader (ipv4Header);
+
+  Ipv4Address packetSource = ipv4Header.GetSource ();
+
+  UdpHeader udpHeader;
+  copyPacket->RemoveHeader (udpHeader);
+
+  if (udpHeader.GetDestinationPort () != AODV_PORT)
+  {
+    return false;
+  }
+
   Ptr<Node> node = m_ipv4->GetObject<Node> ();
   if (node -> GetId () == 1) {
     TypeHeader tHeader;
+    copyPacket->RemoveHeader (tHeader);
+
     RreqHeader rreqHeader;
-    if (packet->PeekHeader (tHeader) && packet->PeekHeader (rreqHeader))
+    RrepHeader rrepHeader;
+    RoutingTableEntry rt;
+    bool foundInRoutingTable = m_routingTable.LookupRoute (packetSource, rt);
+
+    switch (tHeader.Get())
     {
-      NS_LOG_WARN ("Received packet " << packetType << " with protocol " << protocol << " and " << tHeader.Get ());
-      NS_LOG_WARN ("Received packet from " << rreqHeader.GetOrigin () << " to " << rreqHeader.GetDst ());
+      case AODVTYPE_RREQ:
+        copyPacket->RemoveHeader (rreqHeader);
+        NS_LOG_DEBUG ("Promiscuous Mode -- Received RREQ from " << packetSource << " origin " << rreqHeader.GetOrigin () << " to " << rreqHeader.GetDst());
+        if (foundInRoutingTable) {
+          rt.IncrementPositiveEventCount();
+        }
+        break;
+      case AODVTYPE_RREP:
+        copyPacket->RemoveHeader (rrepHeader);
+        NS_LOG_DEBUG ("Promiscuous Mode -- Received RREP from " << packetSource);
+      default:
+        break;
     }
   }
 
@@ -1333,7 +1357,7 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
         senderOfRreq.IncrementPositiveEventCount();
       }
 
-      NS_LOG_WARN ("Ignoring RREQ due to duplicate from " << src);
+      NS_LOG_DEBUG ("Ignoring RREQ due to duplicate from " << src);
       return;
     }
 
@@ -1427,7 +1451,7 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
   {
     m_routingTable.LookupRoute (origin, toOrigin);
 
-    std::cout << "Node is malicious: " << m_ipv4->GetObject<Node> ()-> GetId () << std::endl;
+    std::cout << "Node is blackhole: " << m_ipv4->GetObject<Node> ()-> GetId () << std::endl;
     SendMaliciousReply (rreqHeader, toOrigin);
     return;
   }
@@ -1505,7 +1529,6 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
         }
       m_lastBcastTime = Simulator::Now ();
       Simulator::Schedule (Time (MilliSeconds (m_uniformRandomVariable->GetInteger (0, 10))), &RoutingProtocol::SendTo, this, socket, packet, destination);
-
     }
 }
 
@@ -1552,7 +1575,7 @@ RoutingProtocol::SendMaliciousReply (RreqHeader const & rreqHeader, RoutingTable
     /*origin=*/ toOrigin.GetDestination (),
     /*lifeTime=*/ m_myRouteTimeout);
 
-  std::cout << "Malicious Reply: with seq number " << rrepHeader.GetDstSeqno() << " to " << rrepHeader.GetOrigin () << std::endl;
+  NS_LOG_WARN ("Blackhole Reply: with seq number " << rrepHeader.GetDstSeqno() << " to " << rrepHeader.GetOrigin ());
 
   Ptr<Packet> packet = Create<Packet>();
   SocketIpTtlTag tag;
@@ -1645,7 +1668,7 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
   RrepHeader rrepHeader;
   p->RemoveHeader (rrepHeader);
   Ipv4Address dst = rrepHeader.GetDst ();
-  NS_LOG_WARN ("RREP destination " << dst << " RREP origin " << rrepHeader.GetOrigin () << " Seqno " << rrepHeader.GetDstSeqno ());
+  NS_LOG_LOGIC ("RREP destination " << dst << " RREP origin " << rrepHeader.GetOrigin () << " Seqno " << rrepHeader.GetDstSeqno ());
 
   uint8_t hop = rrepHeader.GetHopCount () + 1;
   rrepHeader.SetHopCount (hop);
@@ -1726,7 +1749,7 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
       SendReplyAck (sender);
       rrepHeader.SetAckRequired (false);
     }
-  NS_LOG_WARN ("receiver " << receiver << " origin " << rrepHeader.GetOrigin ());
+  NS_LOG_LOGIC ("receiver " << receiver << " origin " << rrepHeader.GetOrigin ());
   if (IsMyOwnAddress (rrepHeader.GetOrigin ()))
     {
       if (toDst.GetFlag () == IN_SEARCH)
@@ -1843,7 +1866,6 @@ RoutingProtocol::RecvError (Ptr<Packet> p, Ipv4Address src )
   NS_LOG_FUNCTION (this << " from " << src);
   RerrHeader rerrHeader;
   p->RemoveHeader (rerrHeader);
-  NS_LOG_ERROR ("Received RERR for unreachable - " << rerrHeader);
   std::map<Ipv4Address, uint32_t> dstWithNextHopSrc;
   std::map<Ipv4Address, uint32_t> unreachable;
   m_routingTable.GetListOfDestinationWithNextHop (src, dstWithNextHopSrc);
@@ -2273,6 +2295,18 @@ RoutingProtocol::DoInitialize (void)
       m_htimer.Schedule (MilliSeconds (startTime));
     }
   Ipv4RoutingProtocol::DoInitialize ();
+
+  // Add a handler for all packets received by the node.
+  // Use to calculate trust value for other nodes.
+  Ptr<Node> node = GetObject<Node> ();
+  for (uint32_t index=0; index < node->GetNDevices (); index++)
+  {
+    Ptr<NetDevice> device = node->GetDevice (index);
+    if (!DynamicCast<LoopbackNetDevice> (device))
+    {
+      device->SetPromiscReceiveCallback (MakeCallback (&RoutingProtocol::RecvPromiscuousMode, this));
+    }
+  }
 }
 
 } //namespace aodv

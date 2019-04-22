@@ -367,8 +367,6 @@ private:
   void RecvError (Ptr<Packet> p, Ipv4Address src);
   //\}
 
-  void RecvRawSocket(Ptr<Socket> socket);
-
   bool RecvPromiscuousMode (Ptr<NetDevice> device, Ptr<const Packet> packet, uint16_t protocol, const Address &from, const Address &to, NetDevice::PacketType packetType);
 
   ///\name Send

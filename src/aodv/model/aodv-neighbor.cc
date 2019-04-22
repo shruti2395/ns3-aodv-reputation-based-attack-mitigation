@@ -179,7 +179,6 @@ void
 Neighbors::ProcessTxError (WifiMacHeader const & hdr)
 {
   Mac48Address addr = hdr.GetAddr1 ();
-  std::cout << "Processing Tx Error for " << addr << std::endl;
 
   for (std::vector<Neighbor>::iterator i = m_nb.begin (); i != m_nb.end (); ++i)
     {
