@@ -426,7 +426,6 @@ private:
   float_t m_beliefValue;
   float_t m_disbeliefValue;
   float_t m_uncertaintyValue;
-
 };
 
 /**

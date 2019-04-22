@@ -189,9 +189,9 @@ RoutingTableEntry::ResetTrustEventCount (u_int16_t positiveCount, u_int16_t nega
   m_disbeliefValue = negativeCount / denominator;
   m_uncertaintyValue = 2.0f / denominator;
 
-  if (m_beliefValue >= 0.5) {
+  if (m_beliefValue > 0.5f) {
     m_trustState = TRUSTED;
-  } else if (m_disbeliefValue >= 0.5) {
+  } else if (m_disbeliefValue > 0.5f) {
     m_trustState = UNTRUSTED;
   } else {
     m_trustState = UNCERTAIN;
@@ -361,6 +361,7 @@ RoutingTable::SetEntryState (Ipv4Address id, RouteFlags state)
     }
   i->second.SetFlag (state);
   i->second.SetRreqCnt (0);
+  i->second.ResetTrustEventCount (0, 0);
   NS_LOG_LOGIC ("Route set entry state to " << id << ": new state is " << state);
   return true;
 }

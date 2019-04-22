@@ -705,7 +705,8 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   RoutingTableEntry rt (/*device=*/ m_lo, /*dst=*/ Ipv4Address::GetLoopback (), /*know seqno=*/ true, /*seqno=*/ 0,
                                     /*iface=*/ Ipv4InterfaceAddress (Ipv4Address::GetLoopback (), Ipv4Mask ("255.0.0.0")),
                                     /*hops=*/ 1, /*next hop=*/ Ipv4Address::GetLoopback (),
-                                    /*lifetime=*/ Simulator::GetMaximumSimulationTime ());
+                                    /*lifetime=*/ Simulator::GetMaximumSimulationTime (),
+                                    100, 0);
   m_routingTable.AddRoute (rt);
 
   Simulator::ScheduleNow (&RoutingProtocol::Start, this);
@@ -751,7 +752,8 @@ RoutingProtocol::NotifyInterfaceUp (uint32_t i)
   // Add local broadcast record to the routing table
   Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
   RoutingTableEntry rt (/*device=*/ dev, /*dst=*/ iface.GetBroadcast (), /*know seqno=*/ true, /*seqno=*/ 0, /*iface=*/ iface,
-                                    /*hops=*/ 1, /*next hop=*/ iface.GetBroadcast (), /*lifetime=*/ Simulator::GetMaximumSimulationTime ());
+                        /*hops=*/ 1, /*next hop=*/ iface.GetBroadcast (), /*lifetime=*/ Simulator::GetMaximumSimulationTime (),
+                        100, 0);
   m_routingTable.AddRoute (rt);
 
   if (l3->GetInterface (i)->GetArpCache ())
@@ -865,7 +867,8 @@ RoutingProtocol::NotifyAddAddress (uint32_t i, Ipv4InterfaceAddress address)
               m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
           RoutingTableEntry rt (/*device=*/ dev, /*dst=*/ iface.GetBroadcast (), /*know seqno=*/ true,
                                             /*seqno=*/ 0, /*iface=*/ iface, /*hops=*/ 1,
-                                            /*next hop=*/ iface.GetBroadcast (), /*lifetime=*/ Simulator::GetMaximumSimulationTime ());
+                                            /*next hop=*/ iface.GetBroadcast (), /*lifetime=*/ Simulator::GetMaximumSimulationTime (),
+                                            100, 0);
           m_routingTable.AddRoute (rt);
         }
     }
@@ -923,7 +926,8 @@ RoutingProtocol::NotifyRemoveAddress (uint32_t i, Ipv4InterfaceAddress address)
           // Add local broadcast record to the routing table
           Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
           RoutingTableEntry rt (/*device=*/ dev, /*dst=*/ iface.GetBroadcast (), /*know seqno=*/ true, /*seqno=*/ 0, /*iface=*/ iface,
-                                            /*hops=*/ 1, /*next hop=*/ iface.GetBroadcast (), /*lifetime=*/ Simulator::GetMaximumSimulationTime ());
+                                            /*hops=*/ 1, /*next hop=*/ iface.GetBroadcast (), /*lifetime=*/ Simulator::GetMaximumSimulationTime (),
+                                            100, 0);
           m_routingTable.AddRoute (rt);
         }
       if (m_socketAddresses.empty ())
@@ -1304,9 +1308,14 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
     {
       if (toPrev.IsUnidirectional ())
         {
+          toPrev.IncrementNegativeEventCount();
           NS_LOG_DEBUG ("Ignoring RREQ from node in blacklist");
           return;
         }
+      else
+      {
+        toPrev.IncrementPositiveEventCount();
+      }
     }
 
   uint32_t id = rreqHeader.GetId ();
@@ -1318,10 +1327,13 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
    */
   if (m_rreqIdCache.IsDuplicate (origin, id))
     {
-      if (m_ipv4->GetObject<Node> ()->GetId () == 0)
+      RoutingTableEntry senderOfRreq;
+      if (m_routingTable.LookupRoute (src, senderOfRreq))
       {
-        NS_LOG_WARN ("Ignoring RREQ due to duplicate");
+        senderOfRreq.IncrementPositiveEventCount();
       }
+
+      NS_LOG_WARN ("Ignoring RREQ due to duplicate from " << src);
       return;
     }
 
@@ -1455,8 +1467,9 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
         }
     }
 
-  if (m_enableBlackholeAttack) {
-    std::cout << "Malicious node - Do not broadcast RREQ" << std::endl;
+  if (m_enableBlackholeAttack || m_uniformRandomVariable->GetInteger (1, 100) <= m_blackholeAttackPacketDropPercentage)
+  {
+    NS_LOG_WARN ("Malicious node - Do not broadcast RREQ");
     return;
   }
 
@@ -1649,21 +1662,10 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
   {
     if (senderEntry.GetTrustState () == UNTRUSTED)
       {
-        NS_LOG_WARN ("Untrusted source for RREP packet.");
-        if (m_nb.IsNeighbor(sender))
-        {
-          // Drop from neighbor dataset.
-          // m_routingTable.DeleteRoute(rrepHeader.GetOrigin ());
-        }
+        // Drop the RREP packet so that this route isn't selected.
+        NS_LOG_WARN ("Untrusted source for RREP packet." << sender);
+        return;
       }
-  /**
-      if (rrepHeader.GetDstSeqno() > 200000 && Simulator::Now () < Time  (Seconds (40)))
-      {
-        // possibly suspicious packet
-        senderEntry.IncrementNegativeEventCount ();
-        NS_LOG_WARN ("Reducing trust for entry " << sender);
-      }
-  */
   }
 
   /*
@@ -1680,6 +1682,8 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
   RoutingTableEntry newEntry (/*device=*/ dev, /*dst=*/ dst, /*validSeqNo=*/ true, /*seqno=*/ rrepHeader.GetDstSeqno (),
                                           /*iface=*/ m_ipv4->GetAddress (m_ipv4->GetInterfaceForAddress (receiver), 0),/*hop=*/ hop,
                                           /*nextHop=*/ sender, /*lifeTime=*/ rrepHeader.GetLifeTime ());
+  newEntry.IncrementPositiveEventCount();
+
   RoutingTableEntry toDst;
   if (m_routingTable.LookupRoute (dst, toDst))
     {
@@ -1812,6 +1816,7 @@ RoutingProtocol::ProcessHello (RrepHeader const & rrepHeader, Ipv4Address receiv
       RoutingTableEntry newEntry (/*device=*/ dev, /*dst=*/ rrepHeader.GetDst (), /*validSeqNo=*/ true, /*seqno=*/ rrepHeader.GetDstSeqno (),
                                               /*iface=*/ m_ipv4->GetAddress (m_ipv4->GetInterfaceForAddress (receiver), 0),
                                               /*hop=*/ 1, /*nextHop=*/ rrepHeader.GetDst (), /*lifeTime=*/ rrepHeader.GetLifeTime ());
+      newEntry.IncrementPositiveEventCount();
       m_routingTable.AddRoute (newEntry);
     }
   else
