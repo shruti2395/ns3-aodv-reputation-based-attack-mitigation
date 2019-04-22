@@ -24,6 +24,7 @@
 #include <cmath>
 #include "ns3/aodv-module.h"
 #include "ns3/core-module.h"
+#include "ns3/netanim-module.h"
 #include "ns3/network-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/mobility-module.h"
@@ -144,6 +145,8 @@ AodvExample::Run ()
   CreateDevices ();
   InstallInternetStack ();
   InstallApplications ();
+
+  AnimationInterface anim ("aodv-routing-animation.xml");
 
   std::cout << "Starting simulation for " << totalTime << " s ...\n";
 

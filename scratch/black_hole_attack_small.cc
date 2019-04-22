@@ -3,6 +3,8 @@
 #include "ns3/aodv-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"
+#include "ns3/flow-monitor-module.h"
+#include "ns3/netanim-module.h"
 #include "ns3/network-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/mobility-module.h"
@@ -150,6 +152,18 @@ BlackholeAttackSmallExample::Run ()
   InstallInternetStack ();
   InstallApplications ();
 
+  Ipv4GlobalRoutingHelper::PopulateRoutingTables();
+
+  AnimationInterface anim ("blackhole-small-routing-animation.xml");
+
+  anim.EnablePacketMetadata();
+  anim.EnableIpv4RouteTracking("blackhole-small-routing-table.xml", Seconds (0), Seconds (totalTime), Seconds (5));
+  anim.SetBackgroundImage("/home/shruti/Desktop/project-ns3-aodv/hos.png", 0, 0, 1.0, 1.0, 0.75);
+
+  Ptr<FlowMonitor> flowmon;
+  FlowMonitorHelper flowmonHelper;
+  flowmon = flowmonHelper.InstallAll ();
+
   std::cout << "Starting simulation for " << totalTime << " s ...\n";
 
   // CheckThroughput();
@@ -157,6 +171,8 @@ BlackholeAttackSmallExample::Run ()
   Simulator::Stop (Seconds (totalTime));
   Simulator::Run ();
   Simulator::Destroy ();
+
+  flowmon->SerializeToXmlFile ("blackhole-small.flowmon", false, false);
 }
 
 void
@@ -271,6 +287,7 @@ BlackholeAttackSmallExample::InstallInternetStack ()
 {
   AodvHelper aodv;
   aodv.Set("EnableHello", BooleanValue (false));
+  // aodv.Set("GratuitousReply", BooleanValue (false));
 
   // you can configure AODV attributes here using aodv.Set(name, value)
   InternetStackHelper stack;
@@ -286,6 +303,7 @@ BlackholeAttackSmallExample::InstallInternetStack ()
       aodv.PrintRoutingTableAllAt (Seconds (10), routingStream);
       aodv.PrintRoutingTableAllAt (Seconds (50), routingStream);
       aodv.PrintRoutingTableAllAt (Seconds (80), routingStream);
+      // aodv.PrintRoutingTableEvery(Seconds (1), nodes.Get (1), routingStream, Time::Unit::S);
     }
 }
 
@@ -317,8 +335,10 @@ BlackholeAttackSmallExample::InstallApplications ()
   Ptr<aodv::RoutingProtocol> routingProtocol = maliciousNode->GetObject<aodv::RoutingProtocol> ();
   std::cout << routingProtocol->GetInstanceTypeId () << std::endl;
   routingProtocol->SetBlackholeAttackEnable(true);
+  routingProtocol->SetBlackholeAttackPacketDropPercentage(100);
 
   Simulator::Schedule (Seconds (40), &aodv::RoutingProtocol::SetBlackholeAttackEnable, routingProtocol, false);
+  Simulator::Schedule (Seconds (40), &aodv::RoutingProtocol::SetBlackholeAttackPacketDropPercentage, routingProtocol, 0);
 
   // move node away - disabled for now
   // Ptr<MobilityModel> mob = node->GetObject<MobilityModel> ();
