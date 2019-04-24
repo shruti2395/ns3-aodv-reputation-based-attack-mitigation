@@ -335,8 +335,8 @@ RoutingTable::Update (RoutingTableEntry & rt)
       return false;
     }
 
-  uint16_t newPositiveEventCount = i->second.GetTrustPositiveEventCount () + rt.GetTrustPositiveEventCount ();
-  uint16_t newNegativeEventCount = i->second.GetTrustNegativeEventCount () + rt.GetTrustNegativeEventCount ();
+  uint16_t newPositiveEventCount = rt.GetTrustPositiveEventCount ();
+  uint16_t newNegativeEventCount = rt.GetTrustNegativeEventCount ();
 
   i->second = rt;
   if (i->second.GetFlag () != IN_SEARCH)

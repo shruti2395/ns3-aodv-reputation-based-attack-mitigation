@@ -530,9 +530,16 @@ public:
    */
   void Print (Ptr<OutputStreamWrapper> stream) const;
 
+  std::map<Ipv4Address, RoutingTableEntry> GetRoutingTableEntries()
+  {
+    std::map<Ipv4Address, RoutingTableEntry> copyEntries (m_ipv4AddressEntry);
+    return copyEntries;
+  }
+
 private:
   /// The routing table
   std::map<Ipv4Address, RoutingTableEntry> m_ipv4AddressEntry;
+
   /// Deletion time for invalid routes
   Time m_badLinkLifetime;
   /**

@@ -311,6 +311,7 @@ BlackholeAttackSmallExample::InstallInternetStack ()
       aodv.PrintRoutingTableAllAt (Seconds (10), routingStream);
       aodv.PrintRoutingTableAllAt (Seconds (50), routingStream);
       aodv.PrintRoutingTableAllAt (Seconds (80), routingStream);
+      aodv.PrintRoutingTableAllAt (Seconds (totalTime), routingStream);
       // aodv.PrintRoutingTableEvery(Seconds (1), nodes.Get (1), routingStream, Time::Unit::S);
     }
 }

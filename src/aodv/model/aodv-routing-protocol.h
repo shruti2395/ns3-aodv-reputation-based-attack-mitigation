@@ -426,6 +426,10 @@ private:
   void RerrRateLimitTimerExpire ();
   /// Map IP address + RREQ timer.
   std::map<Ipv4Address, Timer> m_addressReqTimer;
+
+  /// Rreq Forwarding Timer
+  std::map<Ipv4Address, Timer> m_rreqNeighborForwardTimer;
+
   /**
    * Handle route discovery process
    * \param dst the destination IP address
@@ -438,6 +442,11 @@ private:
    * \param blacklistTimeout the black list timeout time
    */
   void AckTimerExpire (Ipv4Address neighbor, Time blacklistTimeout);
+
+  /**
+   * Timer for waiting for RREQ forward by neighbor
+   */
+  void RreqForwardTimerExpire (Ipv4Address rtEntryAddress);
 
   /// Provides uniform random variables.
   Ptr<UniformRandomVariable> m_uniformRandomVariable;
