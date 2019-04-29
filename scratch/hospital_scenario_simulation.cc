@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include "ns3/aodv-module.h"
+#include "ns3/dsdv-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"
 #include "ns3/flow-monitor-module.h"
@@ -13,6 +14,8 @@
 #include "ns3/yans-wifi-helper.h"
 
 using namespace ns3;
+
+NS_LOG_COMPONENT_DEFINE ("hospital-simulation");
 
 class HospitalScenarioSimulation
 {
@@ -80,8 +83,8 @@ int main (int argc, char **argv)
 
 HospitalScenarioSimulation::HospitalScenarioSimulation () :
   port (9),
-  n_width (3),
-  simulationTime (100),
+  n_width (20),
+  simulationTime (50),
   step (100),
   outputName ("hospital_scenario_simulation")
 {
@@ -91,7 +94,7 @@ bool
 HospitalScenarioSimulation::Configure (int argc, char **argv)
 {
   // Enable AODV logs by default. Comment this if too noisy.
-  // LogComponentEnable ("AodvRoutingProtocol", LOG_LEVEL_WARN);
+  LogComponentEnable ("AodvRoutingProtocol", LOG_LEVEL_WARN);
 
   SeedManager::SetSeed (12345);
 
@@ -137,6 +140,7 @@ HospitalScenarioSimulation::InstallInternetStack ()
 {
   std::cout << "Installing Internet Stack" << std::endl;
   AodvHelper aodv;
+  //DsdvHelper dsdv;
 
   InternetStackHelper stack;
   stack.SetRoutingHelper (aodv);
@@ -159,13 +163,23 @@ HospitalScenarioSimulation::InstallApplications ()
     uint32_t sourceId = n_width * i;
     uint32_t sinkId = sourceId + (n_width - 1);
     std::cout << "Source = " << sourceId << " and " << sinkId << std::endl;
+
+    V4PingHelper ping (interfaces.GetAddress (sinkId));
+    ping.SetAttribute ("Verbose", BooleanValue (true));
+
+    ApplicationContainer p = ping.Install (allNodes.Get (sourceId));
+    p.Start (Seconds (1));
+    p.Stop (Seconds (simulationTime) - Seconds (0.001));
+
+ /**
     Ptr<Socket> sink = SetupPacketReceive (interfaces.GetAddress (sinkId), allNodes.Get (sinkId));
     AddressValue remoteAddress (InetSocketAddress (interfaces.GetAddress (sinkId), port));
     onOff.SetAttribute ("Remote", remoteAddress);
 
     ApplicationContainer temp = onOff.Install (allNodes.Get (sourceId));
-    temp.Start (Seconds (1));
-    temp.Start (Seconds (simulationTime));
+    temp.Start (Seconds (0));
+    temp.Stop (Seconds (simulationTime));
+*/
   }
 }
 
@@ -248,11 +262,11 @@ HospitalScenarioSimulation::Run ()
 
   CheckThroughput ();
 
-  // Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
   AnimationInterface anim (outputName + "-animation.xml");
 
-  // anim.EnablePacketMetadata ();
+  anim.EnablePacketMetadata ();
   // anim.EnableIpv4RouteTracking (outputName + "-routing-table.xml", Seconds (0), Seconds (simulationTime), Seconds (5));
   anim.SetBackgroundImage("/home/shruti/Desktop/hospital.png", 0, 0, 1.0, 1.0, 0.75);
 
