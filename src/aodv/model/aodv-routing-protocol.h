@@ -190,6 +190,16 @@ public:
     return m_blackholeAttackPacketDropPercentage;
   }
 
+  void SetTrustRoutingEnable (bool f)
+  {
+    m_enableTrustRouting = f;
+  }
+
+  bool GetTrustRoutingEnable () const
+  {
+    return m_enableTrustRouting;
+  }
+
   /**
    * Assign a fixed random variable stream number to the random variables
    * used by this model.  Return the number of streams (possibly zero) that
@@ -240,6 +250,9 @@ private:
   bool m_gratuitousReply;              ///< Indicates whether a gratuitous RREP should be unicast to the node originated route discovery.
   bool m_enableHello;                  ///< Indicates whether a hello messages enable
   bool m_enableBroadcast;              ///< Indicates whether a a broadcast data packets forwarding enable
+
+  // Enable trusted routing
+  bool m_enableTrustRouting;
 
   // Enable black hole attack behavior.
   bool m_enableBlackholeAttack;

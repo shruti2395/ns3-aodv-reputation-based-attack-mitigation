@@ -164,6 +164,8 @@ RoutingProtocol::RoutingProtocol ()
     m_destinationOnly (false),
     m_gratuitousReply (true),
     m_enableHello (false),
+    // Trusted routing must be enabled manually
+    m_enableTrustRouting (false),
     // Black hole attack behavior related
     m_enableBlackholeAttack (false),
     m_blackholeAttackPacketDropPercentage (0),
@@ -295,6 +297,11 @@ RoutingProtocol::GetTypeId (void)
                    BooleanValue (true),
                    MakeBooleanAccessor (&RoutingProtocol::SetBroadcastEnable,
                                         &RoutingProtocol::GetBroadcastEnable),
+                   MakeBooleanChecker ())
+    .AddAttribute ("EnableTrustRouting", "Indicates whether trust routing should be enabled.",
+                   BooleanValue (false),
+                   MakeBooleanAccessor (&RoutingProtocol::SetTrustRoutingEnable,
+                                        &RoutingProtocol::GetTrustRoutingEnable),
                    MakeBooleanChecker ())
     .AddAttribute ("EnableBlackholeAttack", "Indicates whether to enable blackhole packet drop behaviour.",
                    BooleanValue (false),
@@ -1219,7 +1226,7 @@ RoutingProtocol::RecvPromiscuousMode (Ptr<NetDevice> device, Ptr<const Packet> p
                                       uint16_t protocol, const Address &from,
                                       const Address &to, NetDevice::PacketType packetType)
 {
-  if (protocol != Ipv4L3Protocol::PROT_NUMBER)
+  if (!m_enableTrustRouting || protocol != Ipv4L3Protocol::PROT_NUMBER)
   {
     return false;
   }
@@ -1258,7 +1265,7 @@ RoutingProtocol::RecvPromiscuousMode (Ptr<NetDevice> device, Ptr<const Packet> p
         if (foundInRoutingTable) {
           rt.IncrementPositiveEventCount ();
           m_routingTable.Update (rt);
-          
+
           if (m_rreqNeighborForwardTimer.find (packetSource) != m_rreqNeighborForwardTimer.end())
           {
             // manage timer
@@ -1542,35 +1549,39 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
 
       NS_LOG_WARN ("Broadcasting RREQ with id " << rreqHeader.GetId () << " with TTL " << +ttl.GetTtl () << " and hop count " << +rreqHeader.GetHopCount ());
 
-      std::map<Ipv4Address, RoutingTableEntry> rtEntries = m_routingTable.GetRoutingTableEntries();
-      for (std::map<Ipv4Address, RoutingTableEntry>::iterator it = rtEntries.begin(); it != rtEntries.end(); ++it)
+      if (m_enableTrustRouting)
       {
-        if (it->first == Ipv4Address ("127.0.0.1") || it->first == Ipv4Address ("10.255.255.255") || it->first == rreqHeader.GetOrigin ())
+        std::map<Ipv4Address, RoutingTableEntry> rtEntries = m_routingTable.GetRoutingTableEntries();
+        for (std::map<Ipv4Address, RoutingTableEntry>::iterator it = rtEntries.begin(); it != rtEntries.end(); ++it)
         {
-          continue;
-        }
+          if (it->first == Ipv4Address ("127.0.0.1") || it->first == Ipv4Address ("10.255.255.255") || it->first == rreqHeader.GetOrigin ())
+          {
+            continue;
+          }
 
-        RoutingTableEntry rt = it->second;
-        auto existingTimer = m_rreqNeighborForwardTimer.find (it->first);
-        if (existingTimer != m_rreqNeighborForwardTimer.end())
-        {
-          rt.IncrementNegativeEventCount ();
+          RoutingTableEntry rt = it->second;
+          auto existingTimer = m_rreqNeighborForwardTimer.find (it->first);
+          if (existingTimer != m_rreqNeighborForwardTimer.end())
+          {
+            rt.IncrementNegativeEventCount ();
+            m_rreqNeighborForwardTimer[it->first].Remove ();
+          } else
+          {
+            Timer rreqForwardTimer (Timer::CANCEL_ON_DESTROY);
+            m_rreqNeighborForwardTimer[it->first] = rreqForwardTimer;
+          }
+
+          m_rreqNeighborForwardTimer[it->first].SetFunction (&RoutingProtocol::RreqForwardTimerExpire, this);
           m_rreqNeighborForwardTimer[it->first].Remove ();
-        } else
-        {
-          Timer rreqForwardTimer (Timer::CANCEL_ON_DESTROY);
-          m_rreqNeighborForwardTimer[it->first] = rreqForwardTimer;
+          m_rreqNeighborForwardTimer[it->first].SetArguments (Ipv4Address (it->first));
+          m_rreqNeighborForwardTimer[it->first].SetDelay (Seconds (m_allowedHelloLoss * m_helloInterval));
+          m_rreqNeighborForwardTimer[it->first].Schedule ();
+          NS_LOG_WARN ("Setting neighbour forward alert for " << it->first);
         }
 
-        m_rreqNeighborForwardTimer[it->first].SetFunction (&RoutingProtocol::RreqForwardTimerExpire, this);
-        m_rreqNeighborForwardTimer[it->first].Remove ();
-        m_rreqNeighborForwardTimer[it->first].SetArguments (Ipv4Address (it->first));
-        m_rreqNeighborForwardTimer[it->first].SetDelay (Seconds (m_allowedHelloLoss * m_helloInterval));
-        m_rreqNeighborForwardTimer[it->first].Schedule ();
-        NS_LOG_WARN ("Setting neighbour forward alert for " << it->first);
+        NS_LOG_WARN ("Done printing RREQ information.");
       }
 
-      NS_LOG_WARN ("Done printing RREQ information.");
       m_lastBcastTime = Simulator::Now ();
       Simulator::Schedule (Time (MilliSeconds (m_uniformRandomVariable->GetInteger (0, 10))), &RoutingProtocol::SendTo, this, socket, packet, destination);
     }
@@ -1725,11 +1736,15 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
     }
 
   RoutingTableEntry senderEntry;
-  if (!m_routingTable.LookupRoute (sender, senderEntry) || senderEntry.GetTrustState () == UNTRUSTED)
+
+  if (m_enableTrustRouting)
   {
-    // Drop the RREP packet so that this route isn't selected.
-    NS_LOG_WARN ("Untrusted source for RREP packet." << sender);
-    return;
+    if (!m_routingTable.LookupRoute (sender, senderEntry) || senderEntry.GetTrustState () == UNTRUSTED)
+    {
+      // Drop the RREP packet so that this route isn't selected.
+      NS_LOG_WARN ("Untrusted source for RREP packet." << sender);
+      return;
+    }
   }
 
   /*
