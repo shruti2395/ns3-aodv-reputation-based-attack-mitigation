@@ -710,7 +710,7 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
                                     /*iface=*/ Ipv4InterfaceAddress (Ipv4Address::GetLoopback (), Ipv4Mask ("255.0.0.0")),
                                     /*hops=*/ 1, /*next hop=*/ Ipv4Address::GetLoopback (),
                                     /*lifetime=*/ Simulator::GetMaximumSimulationTime (),
-                                    100, 0);
+                                    1000, 0);
   m_routingTable.AddRoute (rt);
 
   Simulator::ScheduleNow (&RoutingProtocol::Start, this);
@@ -757,7 +757,7 @@ RoutingProtocol::NotifyInterfaceUp (uint32_t i)
   Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
   RoutingTableEntry rt (/*device=*/ dev, /*dst=*/ iface.GetBroadcast (), /*know seqno=*/ true, /*seqno=*/ 0, /*iface=*/ iface,
                         /*hops=*/ 1, /*next hop=*/ iface.GetBroadcast (), /*lifetime=*/ Simulator::GetMaximumSimulationTime (),
-                        100, 0);
+                        1000, 0);
   m_routingTable.AddRoute (rt);
 
   if (l3->GetInterface (i)->GetArpCache ())
@@ -869,7 +869,7 @@ RoutingProtocol::NotifyAddAddress (uint32_t i, Ipv4InterfaceAddress address)
           RoutingTableEntry rt (/*device=*/ dev, /*dst=*/ iface.GetBroadcast (), /*know seqno=*/ true,
                                             /*seqno=*/ 0, /*iface=*/ iface, /*hops=*/ 1,
                                             /*next hop=*/ iface.GetBroadcast (), /*lifetime=*/ Simulator::GetMaximumSimulationTime (),
-                                            100, 0);
+                                            1000, 0);
           m_routingTable.AddRoute (rt);
         }
     }
@@ -928,7 +928,7 @@ RoutingProtocol::NotifyRemoveAddress (uint32_t i, Ipv4InterfaceAddress address)
           Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
           RoutingTableEntry rt (/*device=*/ dev, /*dst=*/ iface.GetBroadcast (), /*know seqno=*/ true, /*seqno=*/ 0, /*iface=*/ iface,
                                             /*hops=*/ 1, /*next hop=*/ iface.GetBroadcast (), /*lifetime=*/ Simulator::GetMaximumSimulationTime (),
-                                            100, 0);
+                                            1000, 0);
           m_routingTable.AddRoute (rt);
         }
       if (m_socketAddresses.empty ())
@@ -1349,19 +1349,28 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
       if (toPrev.IsUnidirectional ())
         {
           // Revisit this
-          // toPrev.IncrementNegativeEventCount();
+          toPrev.IncrementNegativeEventCount();
           NS_LOG_DEBUG ("Ignoring RREQ from node in blacklist");
           return;
         }
       else
       {
         // Revisit this.
-        // toPrev.IncrementPositiveEventCount();
+        toPrev.IncrementPositiveEventCount();
       }
+
+      m_routingTable.Update (toPrev);
     }
 
   uint32_t id = rreqHeader.GetId ();
   Ipv4Address origin = rreqHeader.GetOrigin ();
+
+  RoutingTableEntry senderOfRreq;
+  if (m_routingTable.LookupRoute (src, senderOfRreq))
+  {
+    senderOfRreq.IncrementPositiveEventCount ();
+    m_routingTable.Update (senderOfRreq);
+  }
 
   /*
    *  Node checks to determine whether it has received a RREQ with the same Originator IP Address and RREQ ID.
@@ -1374,6 +1383,7 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
       {
         // Revisit this
         // senderOfRreq.IncrementPositiveEventCount();
+        // m_routingTable.Update (senderOfRreq);
       }
 
       NS_LOG_DEBUG ("Ignoring RREQ due to duplicate from " << src);
@@ -1401,6 +1411,7 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
       RoutingTableEntry newEntry (/*device=*/ dev, /*dst=*/ origin, /*validSeno=*/ true, /*seqNo=*/ rreqHeader.GetOriginSeqno (),
                                               /*iface=*/ m_ipv4->GetAddress (m_ipv4->GetInterfaceForAddress (receiver), 0), /*hops=*/ hop,
                                               /*nextHop*/ src, /*timeLife=*/ Time ((2 * m_netTraversalTime - 2 * hop * m_nodeTraversalTime)));
+      // newEntry.IncrementPositiveEventCount ();
       m_routingTable.AddRoute (newEntry);
     }
   else
@@ -1436,6 +1447,7 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
       RoutingTableEntry newEntry (dev, src, false, rreqHeader.GetOriginSeqno (),
                                   m_ipv4->GetAddress (m_ipv4->GetInterfaceForAddress (receiver), 0),
                                   1, src, m_activeRouteTimeout);
+      // newEntry.IncrementPositiveEventCount ();
       m_routingTable.AddRoute (newEntry);
     }
   else
@@ -1448,6 +1460,7 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
       toNeighbor.SetInterface (m_ipv4->GetAddress (m_ipv4->GetInterfaceForAddress (receiver), 0));
       toNeighbor.SetHop (1);
       toNeighbor.SetNextHop (src);
+      // toNeighbor.IncrementPositiveEventCount ();
       m_routingTable.Update (toNeighbor);
     }
   m_nb.Update (src, Time (m_allowedHelloLoss * m_helloInterval));
@@ -1723,7 +1736,6 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
   RrepHeader rrepHeader;
   p->RemoveHeader (rrepHeader);
   Ipv4Address dst = rrepHeader.GetDst ();
-  NS_LOG_LOGIC ("RREP destination " << dst << " RREP origin " << rrepHeader.GetOrigin () << " Seqno " << rrepHeader.GetDstSeqno ());
 
   uint8_t hop = rrepHeader.GetHopCount () + 1;
   rrepHeader.SetHopCount (hop);
@@ -1735,16 +1747,20 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
       return;
     }
 
-  RoutingTableEntry senderEntry;
+  NS_LOG_WARN ("RREP destination " << dst << " RREP origin " << rrepHeader.GetOrigin () << " Seqno " << rrepHeader.GetDstSeqno () << " sender " << sender);
 
-  if (m_enableTrustRouting)
+  RoutingTableEntry senderEntry;
+  bool isSenderTrusted = !m_enableTrustRouting;
+
+  if (m_enableTrustRouting && m_routingTable.LookupRoute (sender, senderEntry))
   {
-    if (!m_routingTable.LookupRoute (sender, senderEntry) || senderEntry.GetTrustState () == UNTRUSTED)
-    {
-      // Drop the RREP packet so that this route isn't selected.
-      NS_LOG_WARN ("Untrusted source for RREP packet." << sender);
-      return;
-    }
+    isSenderTrusted = senderEntry.GetTrustState () == TRUSTED;
+
+    // Not required now.
+    // if (sender == rrepHeader.GetDst ())
+    // {
+      // isSenderTrusted = true;
+    // }
   }
 
   /*
@@ -1758,39 +1774,42 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
    * -  and the destination sequence number is the Destination Sequence Number in the RREP message.
    */
   Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (receiver));
-  RoutingTableEntry newEntry (/*device=*/ dev, /*dst=*/ dst, /*validSeqNo=*/ true, /*seqno=*/ rrepHeader.GetDstSeqno (),
+  RoutingTableEntry newEntry (/*device=*/ dev, /*dst=*/ dst, /*validSeqNo=*/ isSenderTrusted, /*seqno=*/ rrepHeader.GetDstSeqno (),
                                           /*iface=*/ m_ipv4->GetAddress (m_ipv4->GetInterfaceForAddress (receiver), 0),/*hop=*/ hop,
                                           /*nextHop=*/ sender, /*lifeTime=*/ rrepHeader.GetLifeTime ());
 
   RoutingTableEntry toDst;
   if (m_routingTable.LookupRoute (dst, toDst))
     {
-      /*
-       * The existing entry is updated only in the following circumstances:
-       * (i) the sequence number in the routing table is marked as invalid in route table entry.
-       */
-      if (!toDst.GetValidSeqNo ())
-        {
-          m_routingTable.Update (newEntry);
-        }
-      // (ii)the Destination Sequence Number in the RREP is greater than the node's copy of the destination sequence number and the known value is valid,
-      else if ((int32_t (rrepHeader.GetDstSeqno ()) - int32_t (toDst.GetSeqNo ())) > 0)
-        {
-          m_routingTable.Update (newEntry);
-        }
-      else
-        {
-          // (iii) the sequence numbers are the same, but the route is marked as inactive.
-          if ((rrepHeader.GetDstSeqno () == toDst.GetSeqNo ()) && (toDst.GetFlag () != VALID))
-            {
+      if (isSenderTrusted)
+      {
+        /*
+         * The existing entry is updated only in the following circumstances:
+         * (i) the sequence number in the routing table is marked as invalid in route table entry.
+         */
+        if (!toDst.GetValidSeqNo ())
+          {
+            m_routingTable.Update (newEntry);
+          }
+        // (ii)the Destination Sequence Number in the RREP is greater than the node's copy of the destination sequence number and the known value is valid,
+        else if ((int32_t (rrepHeader.GetDstSeqno ()) - int32_t (toDst.GetSeqNo ())) > 0)
+          {
+            m_routingTable.Update (newEntry);
+          }
+        else
+          {
+            // (iii) the sequence numbers are the same, but the route is marked as inactive.
+            if ((rrepHeader.GetDstSeqno () == toDst.GetSeqNo ()) && (toDst.GetFlag () != VALID))
+              {
               m_routingTable.Update (newEntry);
-            }
-          // (iv)  the sequence numbers are the same, and the New Hop Count is smaller than the hop count in route table entry.
-          else if ((rrepHeader.GetDstSeqno () == toDst.GetSeqNo ()) && (hop < toDst.GetHop ()))
-            {
-              m_routingTable.Update (newEntry);
-            }
-        }
+              }
+            // (iv)  the sequence numbers are the same, and the New Hop Count is smaller than the hop count in route table entry.
+            else if ((rrepHeader.GetDstSeqno () == toDst.GetSeqNo ()) && (hop < toDst.GetHop ()))
+              {
+                m_routingTable.Update (newEntry);
+              }
+          }
+      }
     }
   else
     {
@@ -1798,13 +1817,15 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
       NS_LOG_LOGIC ("add new route");
       m_routingTable.AddRoute (newEntry);
     }
+
   // Acknowledge receipt of the RREP by sending a RREP-ACK message back
-  if (rrepHeader.GetAckRequired ())
+  if (rrepHeader.GetAckRequired () && isSenderTrusted)
     {
       SendReplyAck (sender);
       rrepHeader.SetAckRequired (false);
     }
   NS_LOG_LOGIC ("receiver " << receiver << " origin " << rrepHeader.GetOrigin ());
+
   if (IsMyOwnAddress (rrepHeader.GetOrigin ()))
     {
       if (toDst.GetFlag () == IN_SEARCH)
@@ -1815,6 +1836,15 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
         }
       m_routingTable.LookupRoute (dst, toDst);
       SendPacketFromQueue (dst, toDst.GetRoute ());
+      return;
+    }
+
+  if (!isSenderTrusted)
+    {
+      // Drop the RREP packet so that this route isn't selected.
+      NS_LOG_WARN ("Untrusted source for RREP packet." << sender);
+      m_routingTable.Update (senderEntry);
+      SendHello (true);
       return;
     }
 
@@ -1874,6 +1904,7 @@ RoutingProtocol::RecvReplyAck (Ipv4Address neighbor)
     {
       rt.m_ackTimer.Cancel ();
       rt.SetFlag (VALID);
+      rt.IncrementPositiveEventCount ();
       m_routingTable.Update (rt);
     }
 }
@@ -1913,6 +1944,11 @@ RoutingProtocol::ProcessHello (RrepHeader const & rrepHeader, Ipv4Address receiv
     {
       m_nb.Update (rrepHeader.GetDst (), Time (m_allowedHelloLoss * m_helloInterval));
     }
+
+  if (rrepHeader.GetAckRequired () && !m_enableBlackholeAttack)
+  {
+    SendReplyAck (rrepHeader.GetDst ());
+  }
 }
 
 void
@@ -1972,6 +2008,7 @@ RoutingProtocol::RecvError (Ptr<Packet> p, Ipv4Address src )
       packet->AddHeader (typeHeader);
       SendRerrMessage (packet, precursors);
     }
+
   m_routingTable.InvalidateRoutesWithDst (unreachable);
 }
 
@@ -2027,7 +2064,7 @@ RoutingProtocol::HelloTimerExpire ()
     }
   else
     {
-      SendHello ();
+      SendHello (false);
     }
   m_htimer.Cancel ();
   Time diff = m_helloInterval - offset;
@@ -2055,6 +2092,7 @@ void
 RoutingProtocol::AckTimerExpire (Ipv4Address neighbor, Time blacklistTimeout)
 {
   NS_LOG_FUNCTION (this);
+  NS_LOG_WARN ("Ack Timer expired for " << neighbor);
   m_routingTable.MarkLinkAsUnidirectional (neighbor, blacklistTimeout);
 }
 
@@ -2078,7 +2116,7 @@ RoutingProtocol::RreqForwardTimerExpire (Ipv4Address rtEntryAddress)
 }
 
 void
-RoutingProtocol::SendHello ()
+RoutingProtocol::SendHello (bool requireAck)
 {
   NS_LOG_FUNCTION (this);
   /* Broadcast a RREP with TTL = 1 with the RREP message fields set as follows:
@@ -2093,6 +2131,7 @@ RoutingProtocol::SendHello ()
       Ipv4InterfaceAddress iface = j->second;
       RrepHeader helloHeader (/*prefix size=*/ 0, /*hops=*/ 0, /*dst=*/ iface.GetLocal (), /*dst seqno=*/ m_seqNo,
                                                /*origin=*/ iface.GetLocal (),/*lifetime=*/ Time (m_allowedHelloLoss * m_helloInterval));
+      helloHeader.SetAckRequired (requireAck);
       Ptr<Packet> packet = Create<Packet> ();
       SocketIpTtlTag tag;
       tag.SetTtl (1);

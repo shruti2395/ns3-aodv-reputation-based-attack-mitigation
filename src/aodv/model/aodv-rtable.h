@@ -378,6 +378,11 @@ public:
     return m_trustState;
   }
 
+  float_t GetTrustValue () const
+  {
+    return m_beliefValue;
+  }
+
 private:
   /// Valid Destination Sequence Number flag
   bool m_validSeqNo;

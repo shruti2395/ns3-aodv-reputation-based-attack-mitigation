@@ -83,7 +83,7 @@ int main (int argc, char **argv)
 
 HospitalScenarioSimulation::HospitalScenarioSimulation () :
   port (9),
-  n_width (20),
+  n_width (10),
   simulationTime (50),
   step (100),
   outputName ("hospital_scenario_simulation")
@@ -94,7 +94,7 @@ bool
 HospitalScenarioSimulation::Configure (int argc, char **argv)
 {
   // Enable AODV logs by default. Comment this if too noisy.
-  LogComponentEnable ("AodvRoutingProtocol", LOG_LEVEL_WARN);
+  // LogComponentEnable ("AodvRoutingProtocol", LOG_LEVEL_WARN);
 
   SeedManager::SetSeed (12345);
 
@@ -119,6 +119,9 @@ HospitalScenarioSimulation::CreateNodes ()
   
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (allNodes);
+
+  // Set up one malicious node.
+  maliciousNodes.Add (allNodes.Get (n_width / 2));
 }
 
 void
@@ -140,7 +143,7 @@ HospitalScenarioSimulation::InstallInternetStack ()
 {
   std::cout << "Installing Internet Stack" << std::endl;
   AodvHelper aodv;
-  //DsdvHelper dsdv;
+  aodv.Set("EnableHello", BooleanValue (false));
 
   InternetStackHelper stack;
   stack.SetRoutingHelper (aodv);
@@ -157,6 +160,7 @@ HospitalScenarioSimulation::InstallApplications ()
   OnOffHelper onOff ("ns3::UdpSocketFactory", Address ());
   onOff.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1.0]"));
   onOff.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0.0]"));
+  onOff.SetAttribute ("DataRate", DataRateValue (DataRate ("1Mbps")));
 
   for (uint32_t i = 0; i < n_width; i++)
   {
@@ -171,7 +175,7 @@ HospitalScenarioSimulation::InstallApplications ()
     p.Start (Seconds (1));
     p.Stop (Seconds (simulationTime) - Seconds (0.001));
 
- /**
+/**
     Ptr<Socket> sink = SetupPacketReceive (interfaces.GetAddress (sinkId), allNodes.Get (sinkId));
     AddressValue remoteAddress (InetSocketAddress (interfaces.GetAddress (sinkId), port));
     onOff.SetAttribute ("Remote", remoteAddress);
@@ -180,6 +184,14 @@ HospitalScenarioSimulation::InstallApplications ()
     temp.Start (Seconds (0));
     temp.Stop (Seconds (simulationTime));
 */
+  }
+
+  for (uint32_t i = 0; i < maliciousNodes.GetN (); i++)
+  {
+    Ptr<Node> maliciousNode = maliciousNodes.Get (i);
+    Ptr<aodv::RoutingProtocol> routingProtocol = maliciousNode->GetObject<aodv::RoutingProtocol> ();
+    // routingProtocol->SetBlackholeAttackEnable(true);
+    // routingProtocol->SetBlackholeAttackPacketDropPercentage(0);
   }
 }
 
@@ -262,12 +274,16 @@ HospitalScenarioSimulation::Run ()
 
   CheckThroughput ();
 
+  Ptr<FlowMonitor> flowmon;
+  FlowMonitorHelper flowmonHelper;
+  flowmon = flowmonHelper.InstallAll ();
+
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
   AnimationInterface anim (outputName + "-animation.xml");
 
   anim.EnablePacketMetadata ();
-  // anim.EnableIpv4RouteTracking (outputName + "-routing-table.xml", Seconds (0), Seconds (simulationTime), Seconds (5));
+  anim.EnableIpv4RouteTracking (outputName + "-routing-table.xml", Seconds (0), Seconds (simulationTime), Seconds (5));
   anim.SetBackgroundImage("/home/shruti/Desktop/hospital.png", 0, 0, 1.0, 1.0, 0.75);
 
   // Set up node colors for NetAnim
@@ -290,4 +306,6 @@ HospitalScenarioSimulation::Run ()
   std::cout << "Ending simulation" << std::endl;
 
   Simulator::Destroy ();
+
+  flowmon->SerializeToXmlFile (outputName + ".flowmon", false, false);
 }

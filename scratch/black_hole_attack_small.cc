@@ -110,7 +110,7 @@ int main (int argc, char **argv)
 BlackholeAttackSmallExample::BlackholeAttackSmallExample () :
   size (7),
   step (100),
-  totalTime (100),
+  totalTime (200),
   pcap (true),
   printRoutes (true),
   port (9),
@@ -233,6 +233,9 @@ BlackholeAttackSmallExample::CreateNodes ()
   nodes.Create (size);
   NodeContainer nodesInFirstRow;
   NodeContainer nodesInSecondRow;
+  NodeContainer maliciousNodeContainer;
+
+  maliciousNodeContainer.Add (nodes.Get ((size - 2) / 2));
 
   // Name nodes
   for (uint32_t i = 0; i < size; ++i)
@@ -264,12 +267,18 @@ BlackholeAttackSmallExample::CreateNodes ()
 
   // assign fixed separate position for the last node
   Ptr<ListPositionAllocator> positionAllocator = CreateObject<ListPositionAllocator> ();
-  positionAllocator->Add(Vector(step * (size - 4) / 2, step / 2, 0));
-  positionAllocator->Add(Vector(step * (size - 2) / 2, step / 2, 0));
+  positionAllocator->Add(Vector(step * (size - 4) / 2.0, step / 2.5, 0));
+  positionAllocator->Add(Vector(step * (size - 2) / 2.0, step / 2.5, 0));
 
   mobility.SetPositionAllocator(positionAllocator);
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (nodesInSecondRow);
+
+  Ptr<ListPositionAllocator> maliciousNodePositionAllocator = CreateObject<ListPositionAllocator> ();
+  maliciousNodePositionAllocator->Add (Vector (step * (size - 3) / 2.0, -step / 2.5, 0));
+  mobility.SetPositionAllocator (maliciousNodePositionAllocator);
+  mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
+  mobility.Install (maliciousNodeContainer);
 }
 
 void
@@ -294,7 +303,9 @@ void
 BlackholeAttackSmallExample::InstallInternetStack ()
 {
   AodvHelper aodv;
-  aodv.Set("EnableHello", BooleanValue (false));
+  aodv.Set ("EnableTrustRouting", BooleanValue (true));
+
+  // aodv.Set("EnableHello", BooleanValue (false));
   // aodv.Set("GratuitousReply", BooleanValue (false));
 
   // you can configure AODV attributes here using aodv.Set(name, value)
@@ -346,8 +357,9 @@ BlackholeAttackSmallExample::InstallApplications ()
   routingProtocol->SetBlackholeAttackEnable(true);
   routingProtocol->SetBlackholeAttackPacketDropPercentage(100);
 
-  Simulator::Schedule (Seconds (40), &aodv::RoutingProtocol::SetBlackholeAttackEnable, routingProtocol, false);
-  Simulator::Schedule (Seconds (40), &aodv::RoutingProtocol::SetBlackholeAttackPacketDropPercentage, routingProtocol, 0);
+  // To simulate change in blackhole behaviour during the simulation.
+  //Simulator::Schedule (Seconds (40), &aodv::RoutingProtocol::SetBlackholeAttackEnable, routingProtocol, false);
+  //Simulator::Schedule (Seconds (40), &aodv::RoutingProtocol::SetBlackholeAttackPacketDropPercentage, routingProtocol, 0);
 
   // move node away - disabled for now
   // Ptr<MobilityModel> mob = node->GetObject<MobilityModel> ();

@@ -387,7 +387,7 @@ private:
   /// Forward packet from route request queue
   void SendPacketFromQueue (Ipv4Address dst, Ptr<Ipv4Route> route);
   /// Send hello
-  void SendHello ();
+  void SendHello (bool requireAck);
   /// Send RREQ
   void SendRequest (Ipv4Address dst);
   /// Send RREP
