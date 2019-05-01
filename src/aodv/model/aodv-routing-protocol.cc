@@ -1483,7 +1483,7 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
   {
     m_routingTable.LookupRoute (origin, toOrigin);
 
-    std::cout << "Node is blackhole: " << m_ipv4->GetObject<Node> ()-> GetId () << std::endl;
+    NS_LOG_WARN ("Node is blackhole: " << m_ipv4->GetObject<Node> ()-> GetId ());
     SendMaliciousReply (rreqHeader, toOrigin);
     return;
   }

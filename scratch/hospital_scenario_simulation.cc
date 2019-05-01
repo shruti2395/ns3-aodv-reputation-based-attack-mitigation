@@ -83,8 +83,8 @@ int main (int argc, char **argv)
 
 HospitalScenarioSimulation::HospitalScenarioSimulation () :
   port (9),
-  n_width (10),
-  simulationTime (50),
+  n_width (5),
+  simulationTime (200),
   step (100),
   outputName ("hospital_scenario_simulation")
 {
@@ -121,7 +121,7 @@ HospitalScenarioSimulation::CreateNodes ()
   mobility.Install (allNodes);
 
   // Set up one malicious node.
-  maliciousNodes.Add (allNodes.Get (n_width / 2));
+  maliciousNodes.Add (allNodes.Get (n_width * (n_width + 1 - (n_width % 2)) / 2));
 }
 
 void
@@ -143,7 +143,8 @@ HospitalScenarioSimulation::InstallInternetStack ()
 {
   std::cout << "Installing Internet Stack" << std::endl;
   AodvHelper aodv;
-  aodv.Set("EnableHello", BooleanValue (false));
+  aodv.Set("EnableHello", BooleanValue (true));
+  aodv.Set("EnableTrustRouting", BooleanValue (true));
 
   InternetStackHelper stack;
   stack.SetRoutingHelper (aodv);
