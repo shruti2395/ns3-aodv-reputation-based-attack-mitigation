@@ -34,6 +34,10 @@ private:
   
   double simulationTime;
 
+  bool enableBlackhole;
+
+  bool enableTrustedRouting;
+
   // Number of malicious nodes
   uint32_t num_malicious_nodes;
 
@@ -85,7 +89,9 @@ HospitalScenarioSimulation::HospitalScenarioSimulation () :
   port (9),
   n_width (5),
   simulationTime (200),
-  step (100),
+  enableBlackhole (false),
+  enableTrustedRouting (false),
+  step (50),
   outputName ("hospital_scenario_simulation")
 {
 }
@@ -97,7 +103,14 @@ HospitalScenarioSimulation::Configure (int argc, char **argv)
   // LogComponentEnable ("AodvRoutingProtocol", LOG_LEVEL_WARN);
 
   SeedManager::SetSeed (12345);
+  CommandLine cmd;
 
+  cmd.AddValue ("output", "Output name", outputName);
+  cmd.AddValue ("width", "Width", n_width);
+  cmd.AddValue ("enable-blackhole", "Enable blackhole attach node", enableBlackhole);
+  cmd.AddValue ("enable-trust", "Enable trust routing model", enableTrustedRouting);
+
+  cmd.Parse (argc, argv);
   return true;
 }
 
@@ -120,8 +133,11 @@ HospitalScenarioSimulation::CreateNodes ()
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (allNodes);
 
-  // Set up one malicious node.
-  maliciousNodes.Add (allNodes.Get (n_width * (n_width + 1 - (n_width % 2)) / 2));
+  if (enableBlackhole)
+  {
+    // Set up one malicious node.
+    maliciousNodes.Add (allNodes.Get (n_width * (n_width + 1 - (n_width % 2)) / 2));
+  }
 }
 
 void
@@ -143,8 +159,8 @@ HospitalScenarioSimulation::InstallInternetStack ()
 {
   std::cout << "Installing Internet Stack" << std::endl;
   AodvHelper aodv;
-  aodv.Set("EnableHello", BooleanValue (true));
-  aodv.Set("EnableTrustRouting", BooleanValue (true));
+  aodv.Set ("EnableHello", BooleanValue (true));
+  aodv.Set ("EnableTrustRouting", BooleanValue (enableTrustedRouting));
 
   InternetStackHelper stack;
   stack.SetRoutingHelper (aodv);
@@ -191,8 +207,8 @@ HospitalScenarioSimulation::InstallApplications ()
   {
     Ptr<Node> maliciousNode = maliciousNodes.Get (i);
     Ptr<aodv::RoutingProtocol> routingProtocol = maliciousNode->GetObject<aodv::RoutingProtocol> ();
-    // routingProtocol->SetBlackholeAttackEnable(true);
-    // routingProtocol->SetBlackholeAttackPacketDropPercentage(0);
+    routingProtocol->SetBlackholeAttackEnable(true);
+    routingProtocol->SetBlackholeAttackPacketDropPercentage(100);
   }
 }
 
@@ -285,7 +301,7 @@ HospitalScenarioSimulation::Run ()
 
   anim.EnablePacketMetadata ();
   anim.EnableIpv4RouteTracking (outputName + "-routing-table.xml", Seconds (0), Seconds (simulationTime), Seconds (5));
-  anim.SetBackgroundImage("/home/shruti/Desktop/hospital.png", 0, 0, 1.0, 1.0, 0.75);
+  // anim.SetBackgroundImage("/home/shruti/Desktop/hospital.png", 0, 0, 1.0, 1.0, 0.75);
 
   // Set up node colors for NetAnim
   for (uint32_t i = 0; i < allNodes.GetN (); i++)

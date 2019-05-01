@@ -174,7 +174,7 @@ BlackholeAttackSmallExample::Run ()
 
   std::cout << "Starting simulation for " << totalTime << " s ...\n";
 
-  // CheckThroughput();
+  CheckThroughput();
 
   Simulator::Stop (Seconds (totalTime));
   Simulator::Run ();
@@ -318,7 +318,7 @@ BlackholeAttackSmallExample::InstallInternetStack ()
 
   if (printRoutes)
     {
-      Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> ("blackhole_attach_small_aodv.routes", std::ios::out);
+      Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> ("blackhole_attack_small_aodv.routes", std::ios::out);
       aodv.PrintRoutingTableAllAt (Seconds (10), routingStream);
       aodv.PrintRoutingTableAllAt (Seconds (50), routingStream);
       aodv.PrintRoutingTableAllAt (Seconds (80), routingStream);

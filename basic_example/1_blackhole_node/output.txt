@@ -1,0 +1,11 @@
+Waf: Entering directory `/home/shruti/Desktop/ns-allinone-3.29/ns-3.29/build'
+Waf: Leaving directory `/home/shruti/Desktop/ns-allinone-3.29/ns-3.29/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (3.517s)
+Creating 7 nodes 100 m apart.
+ns3::aodv::RoutingProtocol
+Enabling black hole attack for node with id:2
+Starting simulation for 200 s ...
+PING  10.0.0.5 56(84) bytes of data.
+--- 10.0.0.5 ping statistics ---
+198 packets transmitted, 0 received, 100% packet loss, time 197999ms
