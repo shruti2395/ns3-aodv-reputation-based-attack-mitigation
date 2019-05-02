@@ -1,0 +1,499 @@
+Waf: Entering directory `/home/shruti/Desktop/ns-allinone-3.29/ns-3.29/build'
+Waf: Leaving directory `/home/shruti/Desktop/ns-allinone-3.29/ns-3.29/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (3.259s)
+Creating nodes in a grid with 100 nodes
+Creating Devices
+Installing Internet Stack
+Installing Applications
+Source = 0 and 9
+Source = 10 and 19
+Source = 20 and 29
+Source = 30 and 39
+Source = 40 and 49
+Source = 50 and 59
+Source = 60 and 69
+Source = 70 and 79
+Source = 80 and 89
+Source = 90 and 99
+Current time - 0
+Starting simulation
+Current time - 1
+PING  10.0.0.10 56(84) bytes of data.
+PING  10.0.0.20 56(84) bytes of data.
+PING  10.0.0.30 56(84) bytes of data.
+PING  10.0.0.40 56(84) bytes of data.
+PING  10.0.0.50 56(84) bytes of data.
+PING  10.0.0.60 56(84) bytes of data.
+PING  10.0.0.70 56(84) bytes of data.
+PING  10.0.0.80 56(84) bytes of data.
+PING  10.0.0.90 56(84) bytes of data.
+PING  10.0.0.100 56(84) bytes of data.
+Current time - 2
+Current time - 3
+64 bytes from 10.0.0.60: icmp_seq=0 ttl=57 time=2256 ms
+64 bytes from 10.0.0.60: icmp_seq=1 ttl=57 time=1262 ms
+64 bytes from 10.0.0.60: icmp_seq=2 ttl=57 time=263 ms
+Current time - 4
+64 bytes from 10.0.0.60: icmp_seq=3 ttl=57 time=20 ms
+64 bytes from 10.0.0.50: icmp_seq=0 ttl=59 time=3298 ms
+64 bytes from 10.0.0.50: icmp_seq=1 ttl=59 time=2309 ms
+64 bytes from 10.0.0.50: icmp_seq=2 ttl=59 time=1311 ms
+Current time - 5
+64 bytes from 10.0.0.60: icmp_seq=4 ttl=57 time=19 ms
+64 bytes from 10.0.0.50: icmp_seq=4 ttl=59 time=29 ms
+64 bytes from 10.0.0.100: icmp_seq=0 ttl=58 time=4216 ms
+64 bytes from 10.0.0.40: icmp_seq=0 ttl=58 time=4265 ms
+64 bytes from 10.0.0.40: icmp_seq=1 ttl=58 time=3268 ms
+Current time - 6
+64 bytes from 10.0.0.40: icmp_seq=5 ttl=58 time=18 ms
+64 bytes from 10.0.0.60: icmp_seq=5 ttl=57 time=21 ms
+64 bytes from 10.0.0.30: icmp_seq=5 ttl=57 time=229 ms
+Current time - 7
+64 bytes from 10.0.0.40: icmp_seq=6 ttl=58 time=100 ms
+64 bytes from 10.0.0.20: icmp_seq=6 ttl=57 time=122 ms
+64 bytes from 10.0.0.50: icmp_seq=6 ttl=58 time=163 ms
+Current time - 8
+64 bytes from 10.0.0.40: icmp_seq=7 ttl=58 time=16 ms
+64 bytes from 10.0.0.60: icmp_seq=7 ttl=57 time=28 ms
+64 bytes from 10.0.0.20: icmp_seq=7 ttl=57 time=60 ms
+64 bytes from 10.0.0.50: icmp_seq=7 ttl=58 time=185 ms
+Current time - 9
+64 bytes from 10.0.0.20: icmp_seq=8 ttl=57 time=197 ms
+Current time - 10
+64 bytes from 10.0.0.20: icmp_seq=9 ttl=58 time=108 ms
+Current time - 11
+64 bytes from 10.0.0.20: icmp_seq=10 ttl=58 time=86 ms
+Current time - 12
+64 bytes from 10.0.0.20: icmp_seq=11 ttl=58 time=132 ms
+64 bytes from 10.0.0.40: icmp_seq=11 ttl=59 time=178 ms
+Current time - 13
+Current time - 14
+64 bytes from 10.0.0.90: icmp_seq=13 ttl=58 time=9 ms
+Current time - 15
+64 bytes from 10.0.0.90: icmp_seq=14 ttl=58 time=8 ms
+Current time - 16
+64 bytes from 10.0.0.90: icmp_seq=15 ttl=58 time=12 ms
+Current time - 17
+64 bytes from 10.0.0.90: icmp_seq=16 ttl=58 time=12 ms
+Current time - 18
+64 bytes from 10.0.0.90: icmp_seq=17 ttl=58 time=9 ms
+Current time - 19
+64 bytes from 10.0.0.90: icmp_seq=18 ttl=58 time=43 ms
+Current time - 20
+Current time - 21
+Current time - 22
+64 bytes from 10.0.0.40: icmp_seq=21 ttl=58 time=173 ms
+Current time - 23
+64 bytes from 10.0.0.40: icmp_seq=22 ttl=58 time=7 ms
+64 bytes from 10.0.0.10: icmp_seq=20 ttl=58 time=2140 ms
+64 bytes from 10.0.0.10: icmp_seq=21 ttl=58 time=1145 ms
+64 bytes from 10.0.0.10: icmp_seq=22 ttl=58 time=151 ms
+Current time - 24
+64 bytes from 10.0.0.40: icmp_seq=23 ttl=58 time=20 ms
+64 bytes from 10.0.0.10: icmp_seq=23 ttl=58 time=126 ms
+Current time - 25
+64 bytes from 10.0.0.10: icmp_seq=24 ttl=58 time=28 ms
+64 bytes from 10.0.0.40: icmp_seq=24 ttl=58 time=100 ms
+Current time - 26
+64 bytes from 10.0.0.10: icmp_seq=25 ttl=58 time=15 ms
+64 bytes from 10.0.0.40: icmp_seq=25 ttl=58 time=71 ms
+Current time - 27
+64 bytes from 10.0.0.40: icmp_seq=26 ttl=58 time=38 ms
+64 bytes from 10.0.0.10: icmp_seq=26 ttl=57 time=69 ms
+Current time - 28
+64 bytes from 10.0.0.20: icmp_seq=27 ttl=58 time=153 ms
+Current time - 29
+Current time - 30
+Current time - 31
+Current time - 32
+64 bytes from 10.0.0.30: icmp_seq=31 ttl=55 time=243 ms
+Current time - 33
+Current time - 34
+Current time - 35
+64 bytes from 10.0.0.40: icmp_seq=34 ttl=58 time=185 ms
+64 bytes from 10.0.0.50: icmp_seq=34 ttl=58 time=256 ms
+Current time - 36
+Current time - 37
+Current time - 38
+Current time - 39
+64 bytes from 10.0.0.40: icmp_seq=38 ttl=59 time=193 ms
+Current time - 40
+Current time - 41
+Current time - 42
+Current time - 43
+Current time - 44
+Current time - 45
+Current time - 46
+Current time - 47
+64 bytes from 10.0.0.90: icmp_seq=46 ttl=55 time=30 ms
+64 bytes from 10.0.0.30: icmp_seq=46 ttl=56 time=152 ms
+64 bytes from 10.0.0.40: icmp_seq=46 ttl=55 time=165 ms
+Current time - 48
+64 bytes from 10.0.0.90: icmp_seq=47 ttl=55 time=14 ms
+64 bytes from 10.0.0.30: icmp_seq=47 ttl=56 time=70 ms
+64 bytes from 10.0.0.40: icmp_seq=47 ttl=55 time=151 ms
+Current time - 49
+64 bytes from 10.0.0.30: icmp_seq=48 ttl=56 time=15 ms
+64 bytes from 10.0.0.90: icmp_seq=48 ttl=56 time=16 ms
+64 bytes from 10.0.0.50: icmp_seq=48 ttl=58 time=223 ms
+Current time - 50
+64 bytes from 10.0.0.30: icmp_seq=49 ttl=56 time=12 ms
+64 bytes from 10.0.0.90: icmp_seq=49 ttl=58 time=13 ms
+64 bytes from 10.0.0.40: icmp_seq=49 ttl=56 time=52 ms
+64 bytes from 10.0.0.50: icmp_seq=49 ttl=58 time=53 ms
+Current time - 51
+64 bytes from 10.0.0.90: icmp_seq=50 ttl=58 time=20 ms
+64 bytes from 10.0.0.30: icmp_seq=50 ttl=56 time=20 ms
+64 bytes from 10.0.0.40: icmp_seq=50 ttl=55 time=75 ms
+64 bytes from 10.0.0.50: icmp_seq=50 ttl=58 time=112 ms
+Current time - 52
+64 bytes from 10.0.0.90: icmp_seq=51 ttl=58 time=9 ms
+64 bytes from 10.0.0.40: icmp_seq=51 ttl=55 time=107 ms
+64 bytes from 10.0.0.100: icmp_seq=51 ttl=58 time=129 ms
+Current time - 53
+64 bytes from 10.0.0.90: icmp_seq=52 ttl=58 time=15 ms
+64 bytes from 10.0.0.60: icmp_seq=52 ttl=56 time=21 ms
+64 bytes from 10.0.0.40: icmp_seq=52 ttl=55 time=58 ms
+Current time - 54
+64 bytes from 10.0.0.60: icmp_seq=53 ttl=56 time=9 ms
+64 bytes from 10.0.0.40: icmp_seq=53 ttl=55 time=68 ms
+64 bytes from 10.0.0.20: icmp_seq=53 ttl=57 time=105 ms
+Current time - 55
+64 bytes from 10.0.0.40: icmp_seq=54 ttl=55 time=136 ms
+64 bytes from 10.0.0.60: icmp_seq=54 ttl=56 time=152 ms
+Current time - 56
+64 bytes from 10.0.0.40: icmp_seq=55 ttl=55 time=62 ms
+64 bytes from 10.0.0.60: icmp_seq=55 ttl=56 time=117 ms
+Current time - 57
+64 bytes from 10.0.0.40: icmp_seq=56 ttl=55 time=11 ms
+64 bytes from 10.0.0.60: icmp_seq=56 ttl=56 time=21 ms
+Current time - 58
+64 bytes from 10.0.0.40: icmp_seq=57 ttl=55 time=25 ms
+64 bytes from 10.0.0.60: icmp_seq=57 ttl=56 time=28 ms
+Current time - 59
+64 bytes from 10.0.0.60: icmp_seq=58 ttl=56 time=26 ms
+64 bytes from 10.0.0.40: icmp_seq=58 ttl=55 time=121 ms
+Current time - 60
+64 bytes from 10.0.0.60: icmp_seq=59 ttl=56 time=26 ms
+64 bytes from 10.0.0.40: icmp_seq=59 ttl=55 time=105 ms
+Current time - 61
+64 bytes from 10.0.0.60: icmp_seq=60 ttl=56 time=25 ms
+64 bytes from 10.0.0.40: icmp_seq=60 ttl=55 time=70 ms
+Current time - 62
+64 bytes from 10.0.0.60: icmp_seq=61 ttl=56 time=17 ms
+64 bytes from 10.0.0.40: icmp_seq=61 ttl=55 time=28 ms
+Current time - 63
+64 bytes from 10.0.0.60: icmp_seq=62 ttl=56 time=12 ms
+64 bytes from 10.0.0.40: icmp_seq=62 ttl=55 time=326 ms
+Current time - 64
+64 bytes from 10.0.0.40: icmp_seq=63 ttl=55 time=112 ms
+Current time - 65
+64 bytes from 10.0.0.40: icmp_seq=64 ttl=55 time=126 ms
+Current time - 66
+64 bytes from 10.0.0.60: icmp_seq=65 ttl=55 time=74 ms
+Current time - 67
+64 bytes from 10.0.0.60: icmp_seq=66 ttl=55 time=108 ms
+Current time - 68
+64 bytes from 10.0.0.60: icmp_seq=67 ttl=55 time=19 ms
+Current time - 69
+64 bytes from 10.0.0.60: icmp_seq=68 ttl=55 time=24 ms
+Current time - 70
+64 bytes from 10.0.0.60: icmp_seq=69 ttl=55 time=49 ms
+Current time - 71
+64 bytes from 10.0.0.60: icmp_seq=70 ttl=55 time=81 ms
+Current time - 72
+64 bytes from 10.0.0.60: icmp_seq=71 ttl=55 time=31 ms
+Current time - 73
+64 bytes from 10.0.0.60: icmp_seq=72 ttl=55 time=18 ms
+Current time - 74
+64 bytes from 10.0.0.60: icmp_seq=73 ttl=55 time=16 ms
+Current time - 75
+64 bytes from 10.0.0.60: icmp_seq=74 ttl=55 time=142 ms
+64 bytes from 10.0.0.50: icmp_seq=74 ttl=55 time=144 ms
+Current time - 76
+64 bytes from 10.0.0.60: icmp_seq=75 ttl=55 time=50 ms
+Current time - 77
+64 bytes from 10.0.0.60: icmp_seq=76 ttl=55 time=89 ms
+Current time - 78
+64 bytes from 10.0.0.60: icmp_seq=77 ttl=55 time=18 ms
+Current time - 79
+64 bytes from 10.0.0.60: icmp_seq=78 ttl=55 time=28 ms
+Current time - 80
+64 bytes from 10.0.0.60: icmp_seq=79 ttl=55 time=23 ms
+Current time - 81
+64 bytes from 10.0.0.60: icmp_seq=80 ttl=55 time=64 ms
+Current time - 82
+Current time - 83
+Current time - 84
+64 bytes from 10.0.0.90: icmp_seq=83 ttl=55 time=127 ms
+Current time - 85
+64 bytes from 10.0.0.90: icmp_seq=84 ttl=55 time=153 ms
+64 bytes from 10.0.0.70: icmp_seq=84 ttl=57 time=261 ms
+Current time - 86
+64 bytes from 10.0.0.90: icmp_seq=85 ttl=55 time=57 ms
+64 bytes from 10.0.0.50: icmp_seq=85 ttl=57 time=175 ms
+Current time - 87
+64 bytes from 10.0.0.90: icmp_seq=86 ttl=58 time=106 ms
+64 bytes from 10.0.0.50: icmp_seq=86 ttl=57 time=140 ms
+Current time - 88
+64 bytes from 10.0.0.90: icmp_seq=87 ttl=55 time=25 ms
+64 bytes from 10.0.0.50: icmp_seq=87 ttl=57 time=136 ms
+Current time - 89
+Current time - 90
+Current time - 91
+Current time - 92
+64 bytes from 10.0.0.10: icmp_seq=91 ttl=55 time=71 ms
+Current time - 93
+64 bytes from 10.0.0.10: icmp_seq=92 ttl=55 time=11 ms
+Current time - 94
+64 bytes from 10.0.0.10: icmp_seq=93 ttl=55 time=16 ms
+Current time - 95
+64 bytes from 10.0.0.10: icmp_seq=94 ttl=55 time=51 ms
+Current time - 96
+64 bytes from 10.0.0.10: icmp_seq=95 ttl=55 time=234 ms
+Current time - 97
+Current time - 98
+64 bytes from 10.0.0.50: icmp_seq=97 ttl=56 time=358 ms
+Current time - 99
+64 bytes from 10.0.0.70: icmp_seq=98 ttl=59 time=11 ms
+64 bytes from 10.0.0.50: icmp_seq=98 ttl=56 time=14 ms
+Current time - 100
+64 bytes from 10.0.0.50: icmp_seq=99 ttl=56 time=14 ms
+Current time - 101
+64 bytes from 10.0.0.50: icmp_seq=100 ttl=56 time=172 ms
+Current time - 102
+Current time - 103
+Current time - 104
+Current time - 105
+Current time - 106
+Current time - 107
+64 bytes from 10.0.0.50: icmp_seq=106 ttl=57 time=132 ms
+Current time - 108
+64 bytes from 10.0.0.70: icmp_seq=107 ttl=59 time=73 ms
+Current time - 109
+64 bytes from 10.0.0.50: icmp_seq=108 ttl=56 time=276 ms
+Current time - 110
+64 bytes from 10.0.0.30: icmp_seq=109 ttl=58 time=231 ms
+64 bytes from 10.0.0.50: icmp_seq=109 ttl=56 time=239 ms
+Current time - 111
+64 bytes from 10.0.0.50: icmp_seq=110 ttl=56 time=158 ms
+Current time - 112
+Current time - 113
+Current time - 114
+Current time - 115
+64 bytes from 10.0.0.10: icmp_seq=114 ttl=57 time=10 ms
+64 bytes from 10.0.0.30: icmp_seq=114 ttl=58 time=30 ms
+Current time - 116
+64 bytes from 10.0.0.10: icmp_seq=115 ttl=57 time=19 ms
+Current time - 117
+64 bytes from 10.0.0.10: icmp_seq=116 ttl=57 time=14 ms
+Current time - 118
+64 bytes from 10.0.0.10: icmp_seq=117 ttl=57 time=31 ms
+64 bytes from 10.0.0.30: icmp_seq=117 ttl=57 time=65 ms
+Current time - 119
+64 bytes from 10.0.0.10: icmp_seq=118 ttl=57 time=26 ms
+Current time - 120
+64 bytes from 10.0.0.10: icmp_seq=119 ttl=57 time=9 ms
+Current time - 121
+64 bytes from 10.0.0.10: icmp_seq=120 ttl=57 time=71 ms
+Current time - 122
+64 bytes from 10.0.0.10: icmp_seq=121 ttl=57 time=7 ms
+64 bytes from 10.0.0.20: icmp_seq=121 ttl=59 time=40 ms
+Current time - 123
+64 bytes from 10.0.0.10: icmp_seq=122 ttl=57 time=9 ms
+64 bytes from 10.0.0.20: icmp_seq=122 ttl=59 time=29 ms
+Current time - 124
+64 bytes from 10.0.0.10: icmp_seq=123 ttl=57 time=9 ms
+64 bytes from 10.0.0.20: icmp_seq=123 ttl=59 time=36 ms
+Current time - 125
+64 bytes from 10.0.0.20: icmp_seq=124 ttl=59 time=15 ms
+64 bytes from 10.0.0.10: icmp_seq=124 ttl=57 time=18 ms
+Current time - 126
+64 bytes from 10.0.0.20: icmp_seq=125 ttl=59 time=7 ms
+64 bytes from 10.0.0.10: icmp_seq=125 ttl=57 time=150 ms
+Current time - 127
+64 bytes from 10.0.0.10: icmp_seq=126 ttl=57 time=12 ms
+64 bytes from 10.0.0.20: icmp_seq=126 ttl=59 time=167 ms
+Current time - 128
+64 bytes from 10.0.0.10: icmp_seq=127 ttl=57 time=10 ms
+Current time - 129
+64 bytes from 10.0.0.20: icmp_seq=128 ttl=58 time=86 ms
+Current time - 130
+64 bytes from 10.0.0.10: icmp_seq=129 ttl=54 time=113 ms
+64 bytes from 10.0.0.20: icmp_seq=129 ttl=58 time=222 ms
+Current time - 131
+Current time - 132
+64 bytes from 10.0.0.70: icmp_seq=131 ttl=58 time=16 ms
+Current time - 133
+64 bytes from 10.0.0.70: icmp_seq=132 ttl=58 time=89 ms
+Current time - 134
+64 bytes from 10.0.0.70: icmp_seq=133 ttl=58 time=81 ms
+Current time - 135
+Current time - 136
+Current time - 137
+Current time - 138
+Current time - 139
+Current time - 140
+Current time - 141
+Current time - 142
+64 bytes from 10.0.0.80: icmp_seq=141 ttl=57 time=14 ms
+Current time - 143
+64 bytes from 10.0.0.20: icmp_seq=142 ttl=55 time=229 ms
+Current time - 144
+64 bytes from 10.0.0.20: icmp_seq=143 ttl=57 time=14 ms
+Current time - 145
+64 bytes from 10.0.0.40: icmp_seq=144 ttl=56 time=106 ms
+64 bytes from 10.0.0.20: icmp_seq=144 ttl=57 time=238 ms
+Current time - 146
+64 bytes from 10.0.0.20: icmp_seq=145 ttl=57 time=42 ms
+64 bytes from 10.0.0.70: icmp_seq=145 ttl=55 time=207 ms
+Current time - 147
+64 bytes from 10.0.0.20: icmp_seq=146 ttl=57 time=19 ms
+64 bytes from 10.0.0.80: icmp_seq=146 ttl=56 time=174 ms
+Current time - 148
+64 bytes from 10.0.0.20: icmp_seq=147 ttl=57 time=138 ms
+64 bytes from 10.0.0.80: icmp_seq=147 ttl=55 time=139 ms
+64 bytes from 10.0.0.90: icmp_seq=147 ttl=60 time=179 ms
+Current time - 149
+64 bytes from 10.0.0.90: icmp_seq=148 ttl=60 time=110 ms
+64 bytes from 10.0.0.80: icmp_seq=148 ttl=56 time=185 ms
+Current time - 150
+64 bytes from 10.0.0.30: icmp_seq=149 ttl=59 time=107 ms
+64 bytes from 10.0.0.100: icmp_seq=149 ttl=58 time=217 ms
+Current time - 151
+64 bytes from 10.0.0.100: icmp_seq=150 ttl=58 time=11 ms
+64 bytes from 10.0.0.80: icmp_seq=150 ttl=59 time=135 ms
+64 bytes from 10.0.0.30: icmp_seq=150 ttl=59 time=174 ms
+Current time - 152
+Current time - 153
+Current time - 154
+64 bytes from 10.0.0.100: icmp_seq=153 ttl=55 time=9 ms
+64 bytes from 10.0.0.90: icmp_seq=153 ttl=58 time=146 ms
+Current time - 155
+64 bytes from 10.0.0.100: icmp_seq=154 ttl=55 time=11 ms
+64 bytes from 10.0.0.90: icmp_seq=154 ttl=58 time=88 ms
+Current time - 156
+64 bytes from 10.0.0.100: icmp_seq=155 ttl=55 time=137 ms
+Current time - 157
+64 bytes from 10.0.0.100: icmp_seq=156 ttl=55 time=10 ms
+Current time - 158
+64 bytes from 10.0.0.100: icmp_seq=157 ttl=55 time=12 ms
+Current time - 159
+64 bytes from 10.0.0.100: icmp_seq=158 ttl=55 time=10 ms
+Current time - 160
+64 bytes from 10.0.0.100: icmp_seq=159 ttl=55 time=11 ms
+Current time - 161
+64 bytes from 10.0.0.100: icmp_seq=160 ttl=55 time=10 ms
+64 bytes from 10.0.0.80: icmp_seq=160 ttl=59 time=190 ms
+Current time - 162
+64 bytes from 10.0.0.100: icmp_seq=161 ttl=55 time=87 ms
+Current time - 163
+64 bytes from 10.0.0.100: icmp_seq=162 ttl=55 time=40 ms
+64 bytes from 10.0.0.10: icmp_seq=162 ttl=59 time=192 ms
+Current time - 164
+64 bytes from 10.0.0.100: icmp_seq=163 ttl=55 time=9 ms
+64 bytes from 10.0.0.20: icmp_seq=163 ttl=59 time=145 ms
+Current time - 165
+64 bytes from 10.0.0.100: icmp_seq=164 ttl=55 time=19 ms
+64 bytes from 10.0.0.30: icmp_seq=164 ttl=58 time=208 ms
+Current time - 166
+64 bytes from 10.0.0.100: icmp_seq=165 ttl=55 time=123 ms
+64 bytes from 10.0.0.30: icmp_seq=165 ttl=58 time=129 ms
+64 bytes from 10.0.0.20: icmp_seq=165 ttl=59 time=174 ms
+Current time - 167
+64 bytes from 10.0.0.100: icmp_seq=166 ttl=55 time=187 ms
+Current time - 168
+64 bytes from 10.0.0.20: icmp_seq=167 ttl=59 time=71 ms
+64 bytes from 10.0.0.50: icmp_seq=167 ttl=56 time=107 ms
+Current time - 169
+64 bytes from 10.0.0.50: icmp_seq=168 ttl=56 time=225 ms
+Current time - 170
+64 bytes from 10.0.0.50: icmp_seq=169 ttl=56 time=15 ms
+Current time - 171
+64 bytes from 10.0.0.50: icmp_seq=170 ttl=56 time=76 ms
+Current time - 172
+64 bytes from 10.0.0.50: icmp_seq=171 ttl=56 time=205 ms
+Current time - 173
+64 bytes from 10.0.0.50: icmp_seq=172 ttl=56 time=74 ms
+Current time - 174
+Current time - 175
+Current time - 176
+Current time - 177
+64 bytes from 10.0.0.20: icmp_seq=176 ttl=57 time=188 ms
+64 bytes from 10.0.0.30: icmp_seq=176 ttl=58 time=284 ms
+Current time - 178
+64 bytes from 10.0.0.30: icmp_seq=177 ttl=57 time=155 ms
+Current time - 179
+64 bytes from 10.0.0.30: icmp_seq=178 ttl=57 time=221 ms
+Current time - 180
+64 bytes from 10.0.0.30: icmp_seq=179 ttl=57 time=202 ms
+Current time - 181
+64 bytes from 10.0.0.30: icmp_seq=180 ttl=56 time=217 ms
+Current time - 182
+64 bytes from 10.0.0.10: icmp_seq=181 ttl=57 time=58 ms
+Current time - 183
+64 bytes from 10.0.0.10: icmp_seq=182 ttl=57 time=174 ms
+Current time - 184
+64 bytes from 10.0.0.10: icmp_seq=183 ttl=57 time=12 ms
+64 bytes from 10.0.0.20: icmp_seq=183 ttl=59 time=100 ms
+Current time - 185
+64 bytes from 10.0.0.10: icmp_seq=184 ttl=57 time=10 ms
+Current time - 186
+64 bytes from 10.0.0.10: icmp_seq=185 ttl=57 time=7 ms
+64 bytes from 10.0.0.20: icmp_seq=185 ttl=58 time=91 ms
+Current time - 187
+Current time - 188
+Current time - 189
+Current time - 190
+64 bytes from 10.0.0.90: icmp_seq=189 ttl=58 time=151 ms
+64 bytes from 10.0.0.60: icmp_seq=189 ttl=57 time=221 ms
+Current time - 191
+64 bytes from 10.0.0.60: icmp_seq=190 ttl=57 time=142 ms
+64 bytes from 10.0.0.20: icmp_seq=190 ttl=58 time=311 ms
+Current time - 192
+Current time - 193
+64 bytes from 10.0.0.20: icmp_seq=192 ttl=57 time=529 ms
+Current time - 194
+64 bytes from 10.0.0.100: icmp_seq=193 ttl=52 time=99 ms
+64 bytes from 10.0.0.80: icmp_seq=193 ttl=59 time=229 ms
+Current time - 195
+64 bytes from 10.0.0.90: icmp_seq=194 ttl=54 time=143 ms
+Current time - 196
+Current time - 197
+64 bytes from 10.0.0.100: icmp_seq=196 ttl=58 time=15 ms
+Current time - 198
+64 bytes from 10.0.0.100: icmp_seq=197 ttl=58 time=16 ms
+64 bytes from 10.0.0.30: icmp_seq=197 ttl=57 time=26 ms
+Current time - 199
+--- 10.0.0.10 ping statistics ---
+199 packets transmitted, 33 received, 83% packet loss, time 198999ms
+rtt min/avg/max/mdev = 7/152.1/2140/408.9 ms
+--- 10.0.0.20 ping statistics ---
+199 packets transmitted, 30 received, 84% packet loss, time 198999ms
+rtt min/avg/max/mdev = 7/128.5/529/108.1 ms
+--- 10.0.0.30 ping statistics ---
+199 packets transmitted, 20 received, 89% packet loss, time 198999ms
+rtt min/avg/max/mdev = 12/139.5/284/89.81 ms
+--- 10.0.0.40 ping statistics ---
+199 packets transmitted, 33 received, 83% packet loss, time 198999ms
+rtt min/avg/max/mdev = 7/319.3/4265/900.4 ms
+--- 10.0.0.50 ping statistics ---
+199 packets transmitted, 28 received, 85% packet loss, time 198999ms
+rtt min/avg/max/mdev = 14/378.5/3298/736.5 ms
+--- 10.0.0.60 ping statistics ---
+199 packets transmitted, 36 received, 81% packet loss, time 198999ms
+rtt min/avg/max/mdev = 9/153.3/2256/416.9 ms
+--- 10.0.0.70 ping statistics ---
+199 packets transmitted, 7 received, 96% packet loss, time 198999ms
+rtt min/avg/max/mdev = 11/105.4/261/94.3 ms
+--- 10.0.0.80 ping statistics ---
+199 packets transmitted, 7 received, 96% packet loss, time 198999ms
+rtt min/avg/max/mdev = 14/152.3/229/68.86 ms
+--- 10.0.0.90 ping statistics ---
+199 packets transmitted, 24 received, 87% packet loss, time 198999ms
+rtt min/avg/max/mdev = 8/62.29/179/59.91 ms
+--- 10.0.0.100 ping statistics ---
+199 packets transmitted, 21 received, 89% packet loss, time 198999ms
+rtt min/avg/max/mdev = 9/256.1/4216/909.7 ms
+Ending simulation

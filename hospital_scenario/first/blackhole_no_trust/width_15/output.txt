@@ -1,0 +1,276 @@
+Waf: Entering directory `/home/shruti/Desktop/ns-allinone-3.29/ns-3.29/build'
+Waf: Leaving directory `/home/shruti/Desktop/ns-allinone-3.29/ns-3.29/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (3.508s)
+Creating nodes in a grid with 225 nodes
+Creating Devices
+Installing Internet Stack
+Installing Applications
+Source = 0 and 14
+Source = 15 and 29
+Source = 30 and 44
+Source = 45 and 59
+Source = 60 and 74
+Source = 75 and 89
+Source = 90 and 104
+Source = 105 and 119
+Source = 120 and 134
+Source = 135 and 149
+Source = 150 and 164
+Source = 165 and 179
+Source = 180 and 194
+Source = 195 and 209
+Source = 210 and 224
+Enabling black hole attack for node with id:112
+Current time - 0
+Starting simulation
+Current time - 1
+PING  10.0.0.15 56(84) bytes of data.
+PING  10.0.0.30 56(84) bytes of data.
+PING  10.0.0.45 56(84) bytes of data.
+PING  10.0.0.60 56(84) bytes of data.
+PING  10.0.0.75 56(84) bytes of data.
+PING  10.0.0.90 56(84) bytes of data.
+PING  10.0.0.105 56(84) bytes of data.
+PING  10.0.0.120 56(84) bytes of data.
+PING  10.0.0.135 56(84) bytes of data.
+PING  10.0.0.150 56(84) bytes of data.
+PING  10.0.0.165 56(84) bytes of data.
+PING  10.0.0.180 56(84) bytes of data.
+PING  10.0.0.195 56(84) bytes of data.
+PING  10.0.0.210 56(84) bytes of data.
+PING  10.0.0.225 56(84) bytes of data.
+Current time - 2
+Current time - 3
+Current time - 4
+64 bytes from 10.0.0.45: icmp_seq=3 ttl=50 time=53 ms
+64 bytes from 10.0.0.105: icmp_seq=0 ttl=51 time=3946 ms
+64 bytes from 10.0.0.105: icmp_seq=1 ttl=51 time=2950 ms
+Current time - 5
+Current time - 6
+Current time - 7
+Current time - 8
+Current time - 9
+Current time - 10
+Current time - 11
+Current time - 12
+Current time - 13
+Current time - 14
+Current time - 15
+Current time - 16
+Current time - 17
+Current time - 18
+Current time - 19
+Current time - 20
+Current time - 21
+Current time - 22
+Current time - 23
+Current time - 24
+Current time - 25
+Current time - 26
+Current time - 27
+Current time - 28
+Current time - 29
+Current time - 30
+Current time - 31
+Current time - 32
+Current time - 33
+Current time - 34
+Current time - 35
+Current time - 36
+Current time - 37
+Current time - 38
+Current time - 39
+Current time - 40
+Current time - 41
+Current time - 42
+Current time - 43
+Current time - 44
+Current time - 45
+Current time - 46
+Current time - 47
+Current time - 48
+Current time - 49
+Current time - 50
+Current time - 51
+Current time - 52
+Current time - 53
+Current time - 54
+Current time - 55
+Current time - 56
+Current time - 57
+Current time - 58
+Current time - 59
+Current time - 60
+Current time - 61
+Current time - 62
+Current time - 63
+Current time - 64
+Current time - 65
+Current time - 66
+Current time - 67
+Current time - 68
+Current time - 69
+Current time - 70
+Current time - 71
+Current time - 72
+Current time - 73
+Current time - 74
+Current time - 75
+Current time - 76
+Current time - 77
+Current time - 78
+Current time - 79
+Current time - 80
+Current time - 81
+Current time - 82
+Current time - 83
+Current time - 84
+Current time - 85
+Current time - 86
+Current time - 87
+Current time - 88
+Current time - 89
+Current time - 90
+Current time - 91
+Current time - 92
+Current time - 93
+Current time - 94
+Current time - 95
+Current time - 96
+Current time - 97
+Current time - 98
+Current time - 99
+Current time - 100
+Current time - 101
+Current time - 102
+Current time - 103
+Current time - 104
+Current time - 105
+Current time - 106
+Current time - 107
+Current time - 108
+Current time - 109
+Current time - 110
+Current time - 111
+Current time - 112
+Current time - 113
+Current time - 114
+Current time - 115
+Current time - 116
+Current time - 117
+Current time - 118
+Current time - 119
+Current time - 120
+Current time - 121
+Current time - 122
+Current time - 123
+Current time - 124
+Current time - 125
+Current time - 126
+Current time - 127
+Current time - 128
+Current time - 129
+Current time - 130
+Current time - 131
+Current time - 132
+Current time - 133
+Current time - 134
+Current time - 135
+Current time - 136
+Current time - 137
+Current time - 138
+Current time - 139
+Current time - 140
+Current time - 141
+Current time - 142
+Current time - 143
+Current time - 144
+Current time - 145
+Current time - 146
+Current time - 147
+Current time - 148
+Current time - 149
+Current time - 150
+Current time - 151
+Current time - 152
+Current time - 153
+Current time - 154
+Current time - 155
+Current time - 156
+Current time - 157
+Current time - 158
+Current time - 159
+Current time - 160
+Current time - 161
+Current time - 162
+Current time - 163
+Current time - 164
+Current time - 165
+Current time - 166
+Current time - 167
+Current time - 168
+Current time - 169
+Current time - 170
+Current time - 171
+Current time - 172
+Current time - 173
+Current time - 174
+Current time - 175
+Current time - 176
+Current time - 177
+Current time - 178
+Current time - 179
+Current time - 180
+Current time - 181
+Current time - 182
+Current time - 183
+Current time - 184
+Current time - 185
+Current time - 186
+Current time - 187
+Current time - 188
+Current time - 189
+Current time - 190
+Current time - 191
+Current time - 192
+Current time - 193
+Current time - 194
+Current time - 195
+Current time - 196
+Current time - 197
+Current time - 198
+Current time - 199
+--- 10.0.0.15 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.30 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.45 ping statistics ---
+199 packets transmitted, 1 received, 99% packet loss, time 198999ms
+rtt min/avg/max/mdev = 53/53/53/0 ms
+--- 10.0.0.60 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.75 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.90 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.105 ping statistics ---
+199 packets transmitted, 2 received, 98% packet loss, time 198999ms
+rtt min/avg/max/mdev = 2950/3448/3946/704.3 ms
+--- 10.0.0.120 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.135 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.150 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.165 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.180 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.195 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.210 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+--- 10.0.0.225 ping statistics ---
+199 packets transmitted, 0 received, 100% packet loss, time 198999ms
+Ending simulation
